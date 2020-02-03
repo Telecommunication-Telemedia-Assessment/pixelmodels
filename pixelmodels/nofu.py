@@ -28,7 +28,8 @@ from quat.visual.image import *
 
 from pixelmodels.common import extract_features_no_ref
 
-NOFU_MODEL_PATH = os.path.dirname(__file__) + "/models/nofu/model.npz"
+NOFU_MODEL_PATH = os.path.dirname(__file__) + "/models/nofu/"
+# for each type of model a subpath
 
 
 def nofu_features():
@@ -81,6 +82,7 @@ def nofu_predict_video_score(video, tmpfolder="./tmp", features_temp_folder="./t
     X = df[sorted(columns)]
     X = X.replace([np.inf, -np.inf], np.nan).fillna(0).values
 
+    # TODO: fix
     model = load_serialized(get_latest_nofu_model())
 
     predicted = model.predict(X)
