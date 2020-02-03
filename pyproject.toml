@@ -22,6 +22,8 @@ pytest = "^4.6"
 
 [tool.poetry.scripts]
 nofu = "pixelmodels.nofu:main"
+train_nofu = "pixelmodels.train_nofu:main"
+
 [build-system]
 requires = ["poetry>=1.0.3"]
 build-backend = "poetry.masonry.api"
