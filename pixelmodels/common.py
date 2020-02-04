@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import datetime
+
 import git
 
 from quat.ff.probe import ffprobe
@@ -162,7 +164,7 @@ def predict_video_score(features, model_base_path):
             results[m] = predicted
         else:
             lWarn("model {m} skipped, there is no trained model for this available, {models[m]}")
-    predicted["model"] = model_base_path
-    predicted["date"] = str(datetime.datetime.now())
-    predicted["version"] = get_repo_version()
-    return predicted
+    results["model"] = model_base_path
+    results["date"] = str(datetime.datetime.now())
+    results["version"] = get_repo_version()
+    return results

@@ -97,6 +97,7 @@ def main(_=[]):
         features_temp_folder=a["feature_folder"],
         clipping=True
     )
+    jprint(prediction)
     jdump_file(a["output_report"], prediction)
 
 
