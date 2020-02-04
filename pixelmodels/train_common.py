@@ -19,7 +19,7 @@ def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder
     json_assert(video_and_rating, ["video", "mos", "rating_dist", "mos_class"])
 
     video = video_and_rating["video"]
-    assert_file(video, f"""video {video_and_rating["video"]} does not exist """, True)
+    assert_file(video, True)
 
     video_base_name = os.path.basename(os.path.dirname(video)) + "_" + os.path.basename(video)
 

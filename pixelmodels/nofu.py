@@ -2,16 +2,8 @@
 # nofu -- no-reference video quality model
 import argparse
 import sys
-import json
-import datetime
 import os
-import traceback
-import shutil
 import multiprocessing
-import datetime
-
-import numpy as np
-import pandas as pd
 
 from quat.log import *
 from quat.utils.system import *
@@ -26,8 +18,8 @@ from pixelmodels.common import (
     predict_video_score
 )
 
+# this is the basepath, so for each type of model a separate file is stored
 NOFU_MODEL_PATH = os.path.dirname(__file__) + "/models/nofu/"
-# for each type of model a subpath
 
 
 def nofu_features():
@@ -59,16 +51,12 @@ def nofu_features():
         "blockiness",
         "noise",
         # not sure about the following features
-        "niqe",
-        "ceiq",
-        "brisque",
-        "strred"
+        #"niqe",
+        #"ceiq",
+        #"brisque",
+        #"strred"
     }
-    # removed and multi-value features
-    #
-    # "brisque": ImageFeature(calc_brisque_features),
-    # "ceiq": ImageFeature(ceiq)
-    # "strred": StrredNoRefFeatures(),
+
 
 
 def nofu_predict_video_score(video, temp_folder="./tmp", features_temp_folder="./tmp/features", clipping=True):
