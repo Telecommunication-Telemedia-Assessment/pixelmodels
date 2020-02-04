@@ -23,8 +23,8 @@ def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder
 
     video_base_name = os.path.basename(os.path.dirname(video)) + "_" + os.path.basename(video)
 
-    feature_filename = f"{feature_folder}/{video_base_name}.json"
-    feature_filename_full = feature_filename + ".full"
+    pooled_features_filename = f"{feature_folder}/{video_base_name}.json"
+    full_features_filename = pooled_features_filename + ".full"
     pooled_features, full_features = extract_features_no_ref(
         video,
         temp_folder,
@@ -41,7 +41,7 @@ def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder
     pooled_features["rating_dist"] = video_and_rating["rating_dist"]
     pooled_features["mos_class"] = video_and_rating["mos_class"]
 
-    jdump_file(full_report_filename, full_features)
+    jdump_file(full_features_filename, full_features)
     jdump_file(pooled_features_filename, pooled_features)
 
     return pooled_features
