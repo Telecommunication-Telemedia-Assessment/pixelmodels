@@ -43,6 +43,7 @@ In total in this repository four video quality models are included:
 
 Both hybrid models require access to bitrate, resolution, codec and framerate.
 This meta-data will be automatically extracted from the given video files.
+A full description of the models is presented in the mentioned paper `goering2020pixel`.
 
 ### Usage nofu
 
