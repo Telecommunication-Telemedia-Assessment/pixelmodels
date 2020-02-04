@@ -14,6 +14,7 @@ joblib = ">=0.14.1"
 scipy = "^1.4.1"
 pandas = "1.0.0"
 opencv-python = "^4.2.0.32"
+gitpython = ">=3.0.5"
 scikit-video = {git="https://github.com/scikit-video/scikit-video.git", branch="master"}  # latest is required for working brisque niqe
 quat = {git="git@avt10.rz.tu-ilmenau.de:avt-virq/quat.git", branch="master"}
 

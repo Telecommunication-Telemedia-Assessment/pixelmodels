@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import git
 
 from quat.ff.probe import ffprobe
 from quat.ff.convert import (
@@ -10,6 +11,16 @@ from quat.video import *
 from quat.utils.assertions import *
 from quat.visual.base_features import *
 from quat.visual.image import *
+
+
+def get_repo_version():
+    """
+    returns a unified repo version for the final reports
+    """
+    r = git.Repo(os.path.dirname(__file__) + "/..")
+    branch = str(r.active_branch)
+    sha = str(r.head.object.hexsha)
+    return branch + "@" + sha
 
 
 def all_features():
@@ -39,7 +50,7 @@ def all_features():
         "staticness": Staticness(),
         "uhdhdsim": UHDSIM2HD(),
         "blockiness": Blockiness(),
-        # TODO: noise
+        "noise": ImageFeature(calc_noise),
     }
 
 
@@ -62,7 +73,7 @@ def extract_mode0_features(video):
     mode0_features = {  # numbers are important here
         "framerate": float(meta["avg_frame_rate"]),
         "bitrate": float(meta["bitrate"]) / 1024,  # kbit/s
-        "bitdepth": 8 if meta["bits_per_raw_sample"] == "unknown" else int(meta["bits_per_raw_sample"])
+        "bitdepth": 8 if meta["bits_per_raw_sample"] == "unknown" else int(meta["bits_per_raw_sample"]),
         "codec": unify_codec(meta["codec"]),
         "resolution": int(meta["height"]) * int(meta["width"]),
     }
@@ -77,24 +88,24 @@ def extract_mode0_features(video):
     return mode0_features
 
 
-def extract_features_no_ref(video, tmpfolder="./tmp", features_temp_folder="./tmp/features", featurenames=None, modelname="nofu", meta=False):
-    msg_assert(features is not None, "features are required to be defined", f"feature set ok")
+def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./tmp/features", featurenames=None, modelname="nofu", meta=False):
+    msg_assert(featurenames is not None, "featurenames are required to be defined", f"featurenames ok")
     lInfo(f"handle : {video} for {modelname}")
 
     all_feat = all_features()
-    msg_assert(list(set(all_feat.keys()) & featurenames) > 0, "feature set empty")
-    msg_assert(list(set(featurenames - all_feat.keys())) == 0, "feature set comtains features that are not defined")
+    msg_assert(len(list(set(all_feat.keys()) & featurenames)) > 0, "feature set empty")
+    msg_assert(len(list(set(featurenames - all_feat.keys()))) == 0, "feature set comtains features that are not defined")
     features = {}
     for featurename in featurenames:
         features[featurename] = all_feat[featurename]
 
-    features_to_calculate = set([f for f in features.keys() if not features[f].load(features_temp_folder + "/" + modelname + "/" + f, video, f)])
+    features_to_calculate = set([f for f in features.keys() if not features[f].load(features_temp_folder + "/" + f, video, f)])
     i = 0
 
     lInfo(f"calculate missing features {features_to_calculate} for {video}")
     if features_to_calculate != set():
         # convert to avpvs (rescale) and crop
-        video_avpvs_crop = convert_to_avpvs_and_crop(video, tmpfolder + "/crop/")
+        video_avpvs_crop = convert_to_avpvs_and_crop(video, temp_folder + "/crop/")
 
         for frame in iterate_by_frame(video_avpvs_crop, convert=False):
             for f in features_to_calculate:
@@ -105,7 +116,7 @@ def extract_features_no_ref(video, tmpfolder="./tmp", features_temp_folder="./tm
 
     feature_files = []
     for f in features:
-        feature_files.append(features[f].store(features_temp_folder + "/" + modelname + "/" + f, video, f))
+        feature_files.append(features[f].store(features_temp_folder + "/" + f, video, f))
 
     pooled_features = {}
     per_frame_features = {}
@@ -128,4 +139,30 @@ def extract_features_no_ref(video, tmpfolder="./tmp", features_temp_folder="./tm
     return pooled_features, full_features
 
 
+def predict_video_score(features, model_base_path):
+    # predict quality
+    df = pd.DataFrame([features])
+    columns = df.columns.difference(["video", "mos", "rating_dist"])
+    X = df[sorted(columns)]
+    X = X.replace([np.inf, -np.inf], np.nan).fillna(0).values
 
+    models = {
+        "mos": model_base_path + "/model_mos.npz",
+        "class": model_base_path + "/model_class.npz",
+        "rating_dist": model_base_path + "/model_rating_dist.npz"
+    }
+    results = {}
+    for m in models:
+        if os.path.isfile(models[m]):
+            model = load_serialized(models[m])
+            predicted = model.predict(X)
+            # apply clipping if needed
+            if clipping:
+                predicted = np.clip(predicted, 1, 5)
+            results[m] = predicted
+        else:
+            lWarn("model {m} skipped, there is no trained model for this available, {models[m]}")
+    predicted["model"] = model_base_path
+    predicted["date"] = str(datetime.datetime.now())
+    predicted["version"] = get_repo_version()
+    return predicted

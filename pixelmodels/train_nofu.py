@@ -9,6 +9,7 @@ import pandas as pd
 from quat.log import *
 from quat.parallel import run_parallel
 
+from pixelmodels.common import get_repo_version
 from pixelmodels.train_common import *
 from pixelmodels.nofu import nofu_features
 
@@ -16,10 +17,10 @@ from pixelmodels.nofu import nofu_features
 def main(_=[]):
     # argument parsing
     parser = argparse.ArgumentParser(description='train nofu: a no-reference video quality model',
-                                     epilog="stg7 2019",
+                                     epilog=f"stg7 2020 {get_repo_version()}",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("database", type=str, help="training database csv file (consists of video segment and rating value)")
-    parser.add_argument("--feature_folder", type=str, default="features", help="folder for storing the features")
+    parser.add_argument("--feature_folder", type=str, default="features/train_nofu", help="folder for storing the features")
     parser.add_argument("--temp_folder", type=str, default="tmp/train_nofu", help="temp folder")
     parser.add_argument("--train_repetitions", type=int, default=1, help="number of repeatitions for training")
     parser.add_argument("--model", type=str, default="models/nofu", help="output model folder")

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import datetime
+
 import pandas as pd
 
 from quat.log import *
@@ -6,7 +8,10 @@ from quat.utils.assertions import *
 from quat.utils.system import lglob
 from quat.unsorted import jdump_file
 
-from pixelmodels.common import extract_features_no_ref
+from pixelmodels.common import (
+    extract_features_no_ref,
+    get_repo_version
+)
 
 
 def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder, features=None, modelname="nofu"):
@@ -92,6 +97,24 @@ def train_rf_model(features,
 
     df = pd.DataFrame(features)
     print(df.head())
-    pass
+
+    params = {
+        "clipping": str(clipping),
+        "num_trees": num_trees,
+        "threshold": threshold,
+        "repo_version": get_repo_version(),
+        "date": str(datetime.datetime.now()),
+    }
+
+    # train model
+
+
+    # store plots
+
+    # store results
+
+    # store general model info
+    jdump_file(modelfolder + "/info.json", params)
+
 
 

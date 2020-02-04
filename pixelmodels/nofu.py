@@ -8,6 +8,7 @@ import os
 import traceback
 import shutil
 import multiprocessing
+import datetime
 
 import numpy as np
 import pandas as pd
@@ -16,15 +17,14 @@ from quat.log import *
 from quat.utils.system import *
 from quat.unsorted import *
 from quat.parallel import *
-from quat.video import *
-
-from quat.visual.base_features import *
-from quat.visual.image import *
-from quat.ff.probe import *
 from quat.ml.mlcore import *
-from quat.video import *
 
-from pixelmodels.common import extract_features_no_ref
+from quat.unsorted import jdump_file
+from pixelmodels.common import (
+    extract_features_no_ref,
+    get_repo_version,
+    predict_video_score
+)
 
 NOFU_MODEL_PATH = os.path.dirname(__file__) + "/models/nofu/"
 # for each type of model a subpath
@@ -57,7 +57,7 @@ def nofu_features():
         "staticness",
         "uhdhdsim",
         "blockiness",
-        # TODO: noise
+        "noise"
     }
     # removed and multi-value features
     # "niqe": ImageFeature(calc_niqe_features),
@@ -66,53 +66,38 @@ def nofu_features():
     # "strred": StrredNoRefFeatures(),
 
 
-def nofu_predict_video_score(video, tmpfolder="./tmp", features_temp_folder="./tmp/features", clipping=True):
+def nofu_predict_video_score(video, temp_folder="./tmp", features_temp_folder="./tmp/features", clipping=True):
     features, full_report = extract_features_no_ref(
         video,
-        tmpfolder=tmpfolder,
+        temp_folder=temp_folder,
         features_temp_folder=features_temp_folder,
         featurenames=nofu_features(),
         modelname="nofu"
     )
-    # predict quality
-    df = pd.DataFrame([features])
-    columns = df.columns.difference(["rating", "filename"])
-    X = df[sorted(columns)]
-    X = X.replace([np.inf, -np.inf], np.nan).fillna(0).values
-
-    # TODO: fix
-    model = load_serialized(get_latest_nofu_model())
-
-    predicted = model.predict(X)
-    # apply clipping if needed
-    if clipping:
-        predicted = np.clip(predicted, 1, 5)
-
-    return predicted
-
+    return predict_video_score(features, NOFU_MODEL_PATH)
 
 
 def main(_=[]):
     # argument parsing
     parser = argparse.ArgumentParser(description='nofu: a no-reference video quality model',
-                                     epilog="stg7 2019",
+                                     epilog=f"stg7 2020 {get_repo_version()}",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("video", type=str, nargs="+", help="video to predict video quality")
-    parser.add_argument("--feature_filename", type=str, default=None, help="store features in a file, e.g. for training an own model")
-    parser.add_argument("--temp_folder", type=str, default="./tmp", help="temp folder for intermediate results")
+    parser.add_argument("video", type=str, help="video to predict video quality")
+    parser.add_argument("--feature_folder", type=str, default="./features/nofu", help="store features in a file, e.g. for training an own model")
+    parser.add_argument("--temp_folder", type=str, default="./tmp/nofu", help="temp folder for intermediate results")
     parser.add_argument("--model", type=str, default=NOFU_MODEL_PATH, help="specified pre-trained model")
     parser.add_argument('--output_report', type=str, default="report.json", help="output report of calculated values")
-    parser.add_argument('--clipping', action='store_true', help="use clipping of final scores, to [1,5]")
     parser.add_argument('--cpu_count', type=int, default=multiprocessing.cpu_count() // 2, help='thread/cpu count')
 
     a = vars(parser.parse_args())
 
-    for video in a["video"]:
-        extract_features_no_ref(
-            video,
-            features=nofu_features()
-        )
-
+    prediction = nofu_predict_video_score(
+        a["video"],
+        temp_folder=a["temp_folder"],
+        features_temp_folder=a["feature_folder"],
+        clipping=True
+    )
+    jdump_file(a["output_report"], prediction)
 
 
 
