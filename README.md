@@ -24,11 +24,22 @@ In total in this repository four video quality models are included:
 * fume: full-reference pixel based model
 * hyfr: hybrid full-reference model
 
-Both hybrid models require access to  bitrate, resolution, codec, framerate
+Both hybrid models require access to bitrate, resolution, codec, framerate
 
 ### Usage nofu
 
 To use the provided tool, e.g. run
 ```bash
 poetry run nofu test_videos/test_video_h264.mkv
+```
+
+### Retraining the models
+
+To retrain the models it is required to have CSV files accoding to the used format of [AVT-VQDB-UHD-1](https://github.com/Telecommunication-Telemedia-Assessment/AVT-VQDB-UHD-1)
+
+To enable the rating distribution training additional data is requred, that is.e.g not part of the AVT-VQDB-UHD-1 dataset.
+
+For each model a train_{modelname} tool is provided that can be started, e.g. for nofu with the following command line:
+```bash
+poetry run train_nofu data/AVT-VQDB-UHD-1/test_1/mos_ci.csv
 ```

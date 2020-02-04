@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from quat.ff.probe import ffprobe
 from quat.ff.convert import (
     crop_video,
     convert_to_avpvs,
@@ -42,7 +43,41 @@ def all_features():
     }
 
 
-def extract_features_no_ref(video, tmpfolder="./tmp", features_temp_folder="./tmp/features", featurenames=None, modelname="nofu"):
+def unify_codec(x):
+    if "h264" in x:
+        return 0
+    if "hevc" in x:
+        return 1
+    if "vp9" in x:
+        return 2
+    msg_assert(False, f"video codec{x} is not supported by this model")
+    # this should never happen
+    return 3
+
+
+def extract_mode0_features(video):
+    # use ffprobe to extract bitstream features
+    meta = ffprobe(video)
+    # mode0 base data
+    mode0_features = {  # numbers are important here
+        "framerate": float(meta["avg_frame_rate"]),
+        "bitrate": float(meta["bitrate"]) / 1024,  # kbit/s
+        "bitdepth": 8 if meta["bits_per_raw_sample"] == "unknown" else int(meta["bits_per_raw_sample"])
+        "codec": unify_codec(meta["codec"]),
+        "resolution": int(meta["height"]) * int(meta["width"]),
+    }
+    # mode0 extended features
+    mode0_features["bpp"] = 1024 * mode0_features["bitrate"] / (mode0_features["framerate"] * mode0_features["resolution"])
+    mode0_features["bitrate_log"] = np.log(mode0_features["bitrate"])
+    mode0_features["framerate_norm"] = mode0_features["framerate"] / 60.0
+    mode0_features["framerate_log"] = np.log(mode0_features["framerate"])
+    mode0_features["resolution_log"] = np.log(mode0_features["resolution"])
+    mode0_features["resolution_norm"] = mode0_features["resolution"] / (3840 * 2160)
+
+    return mode0_features
+
+
+def extract_features_no_ref(video, tmpfolder="./tmp", features_temp_folder="./tmp/features", featurenames=None, modelname="nofu", meta=False):
     msg_assert(features is not None, "features are required to be defined", f"feature set ok")
     lInfo(f"handle : {video} for {modelname}")
 
@@ -80,8 +115,16 @@ def extract_features_no_ref(video, tmpfolder="./tmp", features_temp_folder="./tm
 
     full_features = {
         "video_name": video,
-        "per_frame": per_frame_features
+        "per_frame": per_frame_features,
     }
+
+    # this is only used if it is a hybrid model
+    if meta:
+        metadata_features = extract_mode0_features(video)
+        full_features["meta"] = metadata_features
+        for m in metadata_features:
+            pooled_features["meta_" + m] = metadata_features[m]
+
     return pooled_features, full_features
 
 

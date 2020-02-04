@@ -47,7 +47,12 @@ def read_train_database_no_ref(database):
     msg_assert("video_name" in df.columns, "video_name needs to be part of database file", "video_name ok")
 
     # individual ratings
-    #msg_assert("ratings" in df.columns, "ratings needs to be part of database file", "video_name ok")
+    rating_dist = []
+    if "ratings" in df.columns:
+        # TODO
+        rating_dist = []
+    else:
+        lWarn("rating distribution cannot be used for training, they are not part of the given database file")
     videos = []
     for _, i in df[["video_name", "MOS"]].iterrows():
         video_filename_path = os.path.join(
@@ -60,7 +65,7 @@ def read_train_database_no_ref(database):
         videos.append({
             "video": video_filename_path,
             "mos": i["MOS"],
-            "rating_dist": [],
+            "rating_dist": rating_dist,
         })
     return videos
 
