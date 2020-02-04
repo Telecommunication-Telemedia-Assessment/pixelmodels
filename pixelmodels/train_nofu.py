@@ -4,6 +4,8 @@ import sys
 import multiprocessing
 from multiprocessing import Pool
 
+import pandas as pd
+
 from quat.log import *
 from quat.parallel import run_parallel
 
@@ -20,7 +22,7 @@ def main(_=[]):
     parser.add_argument("--feature_folder", type=str, default="features", help="folder for storing the features")
     parser.add_argument("--temp_folder", type=str, default="tmp/train_nofu", help="temp folder")
     parser.add_argument("--train_repetitions", type=int, default=1, help="number of repeatitions for training")
-    parser.add_argument("--model", type=str, default="models/nofu.npz", help="output model")
+    parser.add_argument("--model", type=str, default="models/nofu", help="output model folder")
     parser.add_argument('--cpu_count', type=int, default=multiprocessing.cpu_count() // 2, help='thread/cpu count')
 
     a = vars(parser.parse_args())
@@ -37,6 +39,14 @@ def main(_=[]):
     )
 
     # read all features from feature folder
+    features = load_features(a["feature_folder"])
+    lInfo(f"loaded {len(features)} feature values")
+
+    train_rf_model(
+        features,
+        modelfolder=a["model"]
+    )
+
 
 
 

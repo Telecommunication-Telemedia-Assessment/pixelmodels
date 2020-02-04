@@ -61,6 +61,32 @@ def read_train_database_no_ref(database):
             "video": video_filename_path,
             "mos": i["MOS"],
             "rating_dist": [],
-        }
-        )
+        })
     return videos
+
+
+def load_features(feature_folder):
+    assert_file(feature_folder, f"feature folder does not exist {feature_folder}")
+    features = []
+    for features_filename in lglob(feature_folder + "/*.json"):
+        with open(features_filename) as feature_file:
+            jfeat = json.load(feature_file)
+            features.append(jfeat)
+    return features
+
+
+def train_rf_model(features,
+        clipping=True,
+        num_trees=60,
+        threshold="0.0001*mean",
+        graphs=True,
+        save_model=True,
+        target_cols=["mos", "rating_dist"],
+        exclude_cols=["video"],
+        modelfolder="models"):
+
+    df = pd.DataFrame(features)
+    print(df.head())
+    pass
+
+
