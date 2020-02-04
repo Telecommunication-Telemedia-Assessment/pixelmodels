@@ -111,8 +111,13 @@ def train_rf_model(features,
         "date": str(datetime.datetime.now()),
     }
 
-    # train model
+    # train models
 
+    models = {
+        "mos": modelfolder + "/model_mos.npz",
+        "class": modelfolder + "/model_class.npz",
+        "rating_dist": modelfolder + "/model_rating_dist.npz"
+    }
 
     # store plots
 
