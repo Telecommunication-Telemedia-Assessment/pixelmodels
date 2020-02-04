@@ -23,8 +23,6 @@ from quat.visual.image import *
 from quat.ff.probe import *
 from quat.ml.mlcore import *
 from quat.video import *
-from quat.visual.base_features import *
-from quat.visual.image import *
 
 from pixelmodels.common import extract_features_no_ref
 
@@ -34,31 +32,31 @@ NOFU_MODEL_PATH = os.path.dirname(__file__) + "/models/nofu/"
 
 def nofu_features():
     return {
-        "contrast": ImageFeature(calc_contrast_features),
-        "fft": ImageFeature(calc_fft_features),
-        "blur": ImageFeature(calc_blur_features),
-        "color_fulness": ImageFeature(color_fulness_features),
-        "saturation": ImageFeature(calc_saturation_features),
-        "tone": ImageFeature(calc_tone_features),
-        "scene_cuts": CutDetectionFeatures(),
-        "movement": MovementFeatures(),
-        "temporal": TemporalFeatures(),
-        "si": SiFeatures(),
-        "ti": TiFeatures(),
-        "blkmotion": BlockMotion(),
-        "cubrow.0": CuboidRow(0),
-        "cubcol.0": CuboidCol(0),
-        "cubrow.1.0": CuboidRow(1.0),
-        "cubcol.1.0": CuboidCol(1.0),
-        "cubrow.0.3": CuboidRow(0.3),
-        "cubcol.0.3": CuboidCol(0.3),
-        "cubrow.0.6": CuboidRow(0.6),
-        "cubcol.0.6": CuboidCol(0.6),
-        "cubrow.0.5": CuboidRow(0.5),
-        "cubcol.0.5": CuboidCol(0.5),
-        "staticness": Staticness(),
-        "uhdhdsim": UHDSIM2HD(),
-        "blockiness": Blockiness(),
+        "contrast",
+        "fft",
+        "blur",
+        "color_fulness",
+        "saturation",
+        "tone",
+        "scene_cuts",
+        "movement",
+        "temporal",
+        "si",
+        "ti",
+        "blkmotion",
+        "cubrow.0",
+        "cubcol.0",
+        "cubrow.1.0",
+        "cubcol.1.0",
+        "cubrow.0.3",
+        "cubcol.0.3",
+        "cubrow.0.6",
+        "cubcol.0.6",
+        "cubrow.0.5",
+        "cubcol.0.5",
+        "staticness",
+        "uhdhdsim",
+        "blockiness",
         # TODO: noise
     }
     # removed and multi-value features
@@ -73,7 +71,7 @@ def nofu_predict_video_score(video, tmpfolder="./tmp", features_temp_folder="./t
         video,
         tmpfolder=tmpfolder,
         features_temp_folder=features_temp_folder,
-        features=nofu_features(),
+        featurenames=nofu_features(),
         modelname="nofu"
     )
     # predict quality
