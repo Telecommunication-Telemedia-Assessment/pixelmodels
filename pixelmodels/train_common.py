@@ -16,10 +16,10 @@ from pixelmodels.common import (
 
 def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder, features=None, modelname="nofu"):
     msg_assert(features is not None, "features need to be defined", "features ok")
-    json_assert(video_and_rating, ["video", "mos", "rating_dist"])
+    json_assert(video_and_rating, ["video", "mos", "rating_dist", "mos_class"])
 
     video = video_and_rating["video"]
-    assert_file(video, f"""video {video_and_rating["video"]} does not exist """)
+    assert_file(video, f"""video {video_and_rating["video"]} does not exist """, True)
 
     video_base_name = os.path.basename(os.path.dirname(video)) + "_" + os.path.basename(video)
 
@@ -39,6 +39,7 @@ def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder
 
     pooled_features["mos"] = video_and_rating["mos"]
     pooled_features["rating_dist"] = video_and_rating["rating_dist"]
+    pooled_features["mos_class"] = video_and_rating["mos_class"]
 
     jdump_file(full_report_filename, full_features)
     jdump_file(pooled_features_filename, pooled_features)
@@ -48,35 +49,38 @@ def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder
 
 def read_train_database_no_ref(database):
     df = pd.read_csv(database)
-    msg_assert("MOS" in df.columns, "MOS needs to be part of database file", "MOS ok")
+    msg_assert("MOS" in df.columns or "mos" in df.columns, "MOS needs to be part of database file", "MOS ok")
     msg_assert("video_name" in df.columns, "video_name needs to be part of database file", "video_name ok")
 
+    mos_col = "MOS" if "MOS" in df.columns else "mos"
     # individual ratings
-    rating_dist = []
-    if "ratings" in df.columns:
-        # TODO
-        rating_dist = []
-    else:
+    user_cols = [x for x in df.columns if "user" in x]
+    if len(user_cols) == 0:
         lWarn("rating distribution cannot be used for training, they are not part of the given database file")
+
     videos = []
-    for _, i in df[["video_name", "MOS"]].iterrows():
+    for _, i in df.iterrows():
         video_filename_path = os.path.join(
             os.path.dirname(database),
             "segments",
             i["video_name"]
         )
-        assert_file(video_filename_path)
+        rating_dist = {}
+        for ucol in user_cols:
+            rating_dist[i[ucol]] = rating_dist.get(i[ucol], 0) + 1
+        assert_file(video_filename_path, True)
 
         videos.append({
             "video": video_filename_path,
-            "mos": i["MOS"],
+            "mos": i[mos_col],
+            "mos_class": int(round(i[mos_col], 0)),
             "rating_dist": rating_dist,
         })
     return videos
 
 
 def load_features(feature_folder):
-    assert_file(feature_folder, f"feature folder does not exist {feature_folder}")
+    assert_file(feature_folder, f"feature folder does not exist {feature_folder}", True)
     features = []
     for features_filename in lglob(feature_folder + "/*.json"):
         with open(features_filename) as feature_file:
@@ -91,7 +95,7 @@ def train_rf_model(features,
         threshold="0.0001*mean",
         graphs=True,
         save_model=True,
-        target_cols=["mos", "rating_dist"],
+        target_cols=["mos", "rating_dist", "mos_class"],
         exclude_cols=["video"],
         modelfolder="models"):
 
@@ -100,6 +104,7 @@ def train_rf_model(features,
 
     params = {
         "clipping": str(clipping),
+        "targets": target_cols,
         "num_trees": num_trees,
         "threshold": threshold,
         "repo_version": get_repo_version(),

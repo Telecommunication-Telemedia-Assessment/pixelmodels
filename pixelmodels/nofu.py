@@ -57,10 +57,15 @@ def nofu_features():
         "staticness",
         "uhdhdsim",
         "blockiness",
-        "noise"
+        "noise",
+        # not sure about the following features
+        "niqe",
+        "ceiq",
+        "brisque",
+        "strred"
     }
     # removed and multi-value features
-    # "niqe": ImageFeature(calc_niqe_features),
+    #
     # "brisque": ImageFeature(calc_brisque_features),
     # "ceiq": ImageFeature(ceiq)
     # "strred": StrredNoRefFeatures(),

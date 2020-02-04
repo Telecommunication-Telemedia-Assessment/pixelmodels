@@ -53,6 +53,10 @@ def all_features():
         "uhdhdsim": UHDSIM2HD(),
         "blockiness": Blockiness(),
         "noise": ImageFeature(calc_noise),
+        "niqe": ImageFeature(calc_niqe_features),
+        "brisque": ImageFeature(calc_brisque_features),
+        "ceiq": ImageFeature(ceiq),
+        "strred": StrredNoRefFeatures(),
     }
 
 
@@ -126,9 +130,15 @@ def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./
         pooled_features = dict(advanced_pooling(features[f].get_values(), name=f), **pooled_features)
         per_frame_features = dict({f:features[f].get_values()}, **per_frame_features)
 
+    per_video_features = {}  #  TODO: think about: video_compressibility()
+
+    for m in per_video_features:
+        pooled_features["video_" + m] = per_video_features[m]
+
     full_features = {
         "video_name": video,
         "per_frame": per_frame_features,
+        "per_video": per_video_features
     }
 
     # this is only used if it is a hybrid model
@@ -163,7 +173,7 @@ def predict_video_score(features, model_base_path):
                 predicted = np.clip(predicted, 1, 5)
             results[m] = predicted
         else:
-            lWarn("model {m} skipped, there is no trained model for this available, {models[m]}")
+            lWarn(f"model {m} skipped, there is no trained model for this available, {models[m]}")
     results["model"] = model_base_path
     results["date"] = str(datetime.datetime.now())
     results["version"] = get_repo_version()
