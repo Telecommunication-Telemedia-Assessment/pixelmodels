@@ -80,7 +80,7 @@ def read_train_database_no_ref(database):
 
 
 def load_features(feature_folder):
-    assert_file(feature_folder, f"feature folder does not exist {feature_folder}", True)
+    assert_file(feature_folder, True)
     features = []
     for features_filename in lglob(feature_folder + "/*.json"):
         with open(features_filename) as feature_file:
