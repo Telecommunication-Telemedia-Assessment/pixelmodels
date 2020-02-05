@@ -80,7 +80,7 @@ def read_train_database_no_ref(database):
 
 
 def load_features(feature_folder):
-    assert_file(feature_folder, True)
+    assert_dir(feature_folder, True)
     features = []
     for features_filename in lglob(feature_folder + "/*.json"):
         with open(features_filename) as feature_file:
@@ -98,6 +98,8 @@ def train_rf_model(features,
         target_cols=["mos", "rating_dist", "mos_class"],
         exclude_cols=["video"],
         modelfolder="models"):
+
+    os.makedirs(modelfolder, exist_ok=True)
 
     df = pd.DataFrame(features)
     print(df.head())
