@@ -25,6 +25,13 @@ def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder
 
     pooled_features_filename = f"{feature_folder}/{video_base_name}.json"
     full_features_filename = pooled_features_filename + ".full"
+
+    if os.path.isfile(pooled_features_filename) and os.path.isfile(full_features_filename):
+        lInfo(f"features are already calculated, so use cached values, if this is not needed please delete {pooled_features_filename}")
+        with open(pooled_features_filename) as pfp:
+            pooled_features = json.load(pfp)
+        return pooled_features
+
     pooled_features, full_features = extract_features_no_ref(
         video,
         temp_folder,
