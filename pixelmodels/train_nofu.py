@@ -43,7 +43,7 @@ def main(_=[]):
     features = load_features(a["feature_folder"])
     lInfo(f"loaded {len(features)} feature values")
 
-    train_rf_model(
+    train_rf_models(
         features,
         num_trees=60,
         threshold="0.0001*mean",

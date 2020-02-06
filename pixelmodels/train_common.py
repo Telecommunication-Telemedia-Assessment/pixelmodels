@@ -7,6 +7,13 @@ from quat.log import *
 from quat.utils.assertions import *
 from quat.utils.system import lglob
 from quat.unsorted import jdump_file
+from quat.ml.mlcore import (
+    train_rf_class,
+    train_rf_regression,
+    eval_plots_class,
+    eval_plots_regression,
+    save_serialized
+)
 
 from pixelmodels.common import (
     extract_features_no_ref,
@@ -96,7 +103,7 @@ def load_features(feature_folder):
     return features
 
 
-def train_rf_model(features,
+def train_rf_models(features,
         clipping=True,
         num_trees=60,
         threshold="0.0001*mean",
@@ -112,27 +119,65 @@ def train_rf_model(features,
     df.to_csv(os.path.join(modelfolder, "features.csv"), index=False)
 
     print(df.head())
+    models_to_train = [x for x in df.columns if x in target_cols]
+    if len(set(target_cols) & set(models_to_train)) != len(target_cols):
+        missing = set(target_cols) - set(models_to_train)
+        lWarn(f"some target columns are not stored in the feature data, thus they cannot be used for training: missing cols: {missing}")
 
     params = {
         "clipping": str(clipping),
         "targets": target_cols,
         "num_trees": num_trees,
         "threshold": threshold,
+        "models_to_train": models_to_train,
         "repo_version": get_repo_version(),
         "date": str(datetime.datetime.now()),
     }
 
-    # train models
 
     models = {
-        "mos": modelfolder + "/model_mos.npz",
-        "class": modelfolder + "/model_class.npz",
-        "rating_dist": modelfolder + "/model_rating_dist.npz"
+        "regression": modelfolder + "/model_regression.npz",
+        "_class": modelfolder + "/model_class.npz",
+        "_dist": modelfolder + "/model_rating_dist.npz"
     }
 
-    # store plots
+    feature_cols = df.columns.difference(target_cols + exclude_cols)
 
-    # store results
+    X = df[sorted(feature_cols)]
+
+    for model in models_to_train:
+        Y = df[model]  # target col as model name
+
+        if "_class" in model:
+            lInfo(f"train {model} as classification")
+            result = train_rf_class(X, Y, num_trees, threshold)
+            save_serialized(result["randomforest"], models["_class"])
+            cval = result["crossval"]
+            metrics = eval_plots_class(cval["truth"], cval["predicted"], title=model, folder=modelfolder + "/_class/")
+            cval.to_csv(modelfolder + "/crossval_class.csv", index=False)
+            params["class_performance"] = metrics
+            continue
+        if "_dist" in model:
+            lInfo(f"train {model} as multi instance regression")
+
+            continue
+        # default case: regression
+        lInfo(f"train {model} as regression")
+        result = train_rf_regression(X, Y, num_trees, threshold)
+        save_serialized(result["randomforest"], models["regression"])
+        cval = result["crossval"]
+        metrics = eval_plots_regression(
+            cval["truth"],
+            cval["predicted"],
+            title=model,
+            folder=modelfolder + "/_reggression/",
+            plotname=f"rf_@{num_trees}"
+        )
+        cval.to_csv(modelfolder + "/crossval_regression.csv", index=False)
+        metrics["number_features"] = result["number_features"]
+        metrics["used_features"] = result["used_features"]
+        params["regression_performance"] = metrics
+
 
     # store general model info
     jdump_file(modelfolder + "/info.json", params)
