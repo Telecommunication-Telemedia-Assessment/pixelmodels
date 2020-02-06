@@ -153,6 +153,8 @@ def train_rf_models(features,
             result = train_rf_class(X, Y, num_trees, threshold)
             save_serialized(result["randomforest"], models["_class"])
             cval = result["crossval"]
+            if clipping:
+                cval["predicted"] = cval["predicted"].clip(1, 5)
             metrics = eval_plots_class(cval["truth"], cval["predicted"], title=model, folder=modelfolder + "/_class/")
             cval.to_csv(modelfolder + "/crossval_class.csv", index=False)
             params["class_performance"] = metrics
@@ -166,6 +168,8 @@ def train_rf_models(features,
         result = train_rf_regression(X, Y, num_trees, threshold)
         save_serialized(result["randomforest"], models["regression"])
         cval = result["crossval"]
+        if clipping:
+            cval["predicted"] = cval["predicted"].clip(1, 5)
         metrics = eval_plots_regression(
             cval["truth"],
             cval["predicted"],
