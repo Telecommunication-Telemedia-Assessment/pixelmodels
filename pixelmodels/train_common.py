@@ -102,6 +102,8 @@ def train_rf_model(features,
     os.makedirs(modelfolder, exist_ok=True)
 
     df = pd.DataFrame(features)
+    df.to_csv(os.path.join(modelfolder, "features.csv"), index=False)
+
     print(df.head())
 
     params = {
