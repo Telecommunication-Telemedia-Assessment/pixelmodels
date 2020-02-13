@@ -86,9 +86,9 @@ def read_train_database_no_ref(database):
 
         videos.append({
             "video": video_filename_path,
-            "mos": i[mos_col],
-            "mos_class": int(round(i[mos_col], 0)),
-            "rating_dist": rating_dist,
+            "mos": i[mos_col],  # will be handled as regression
+            "mos_class": int(round(i[mos_col], 0)),  # will be handled as classicication
+            "rating_dist": rating_dist,  # will be handled as multi instance regression
         })
     return videos
 
@@ -101,6 +101,18 @@ def load_features(feature_folder):
             jfeat = json.load(feature_file)
             features.append(jfeat)
     return features
+
+def convert_dist(y_values):
+    def unify_dist(y, range_values, norm):
+        for x in range_values:
+            y[x] = y.get(x, 0) / norm
+        return y
+    def sum_dist(y):
+        return sum([y[x] for x in y])
+
+    range_values = set(sum([list(y.keys()) for y in y_values], []))
+    values = [unify_dist(y, range_values, sum_dist(y)) for y in y_values]
+    return pd.DataFrame(values)
 
 
 def train_rf_models(features,
@@ -146,7 +158,7 @@ def train_rf_models(features,
     X = df[sorted(feature_cols)]
 
     for model in models_to_train:
-        Y = df[model]  # target col as model name
+        Y = df[model]  # target column is the model name
 
         if "_class" in model:
             lInfo(f"train {model} as classification")
@@ -161,6 +173,10 @@ def train_rf_models(features,
             continue
         if "_dist" in model:
             lInfo(f"train {model} as multi instance regression")
+
+            Y = convert_dist(Y.values)
+
+            import pdb; pdb.set_trace()
 
             continue
         # default case: regression
