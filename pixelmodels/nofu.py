@@ -20,7 +20,7 @@ from pixelmodels.common import (
 )
 
 # this is the basepath, so for each type of model a separate file is stored
-NOFU_MODEL_PATH = os.path.dirname(__file__) + "/../models/nofu/"
+NOFU_MODEL_PATH = os.path.abspath(os.path.dirname(__file__) + "/../models/nofu/")
 
 
 def nofu_features():
