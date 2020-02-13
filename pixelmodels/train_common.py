@@ -10,6 +10,7 @@ from quat.unsorted import jdump_file
 from quat.ml.mlcore import (
     train_rf_class,
     train_rf_regression,
+    train_rf_multi_regression,
     eval_plots_class,
     eval_plots_regression,
     save_serialized
@@ -102,6 +103,7 @@ def load_features(feature_folder):
             features.append(jfeat)
     return features
 
+
 def convert_dist(y_values):
     def unify_dist(y, range_values):
         sum_ = sum([y[x] for x in y])
@@ -144,7 +146,6 @@ def train_rf_models(features,
         "date": str(datetime.datetime.now()),
     }
 
-
     models = {
         "regression": modelfolder + "/model_regression.npz",
         "_class": modelfolder + "/model_class.npz",
@@ -171,10 +172,15 @@ def train_rf_models(features,
             continue
         if "_dist" in model:
             lInfo(f"train {model} as multi instance regression")
-
             Y = convert_dist(Y.values)
+            Y = Y[sorted(Y.columns)]
+            result = train_rf_multi_regression(X, Y, num_trees, threshold)
+            save_serialized(result["randomforest"], models["_dist"])
+            cval = result["crossval"]
 
-            import pdb; pdb.set_trace()
+            # perform per pair (predicted_N, truth_N) eval plots
+
+            cval.to_csv(modelfolder + "/crossval_rating_dist.csv", index=False)
 
             continue
         # default case: regression
