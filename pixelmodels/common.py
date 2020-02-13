@@ -172,7 +172,9 @@ def predict_video_score(features, model_base_path, clipping=True):
             # apply clipping if needed
             if clipping and m != "rating_dist":
                 predicted = np.clip(predicted, 1, 5)
+            # type conversion to float values
             predicted = [float(x) for x in predicted.flatten().tolist()]
+            # some models have only one value, so just take this one value
             if len(predicted) == 1:
                 predicted = predicted[0]
             results[m] = predicted
