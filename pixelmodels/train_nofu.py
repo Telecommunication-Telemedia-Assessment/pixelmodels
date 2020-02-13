@@ -23,7 +23,7 @@ def main(_=[]):
     parser.add_argument("--feature_folder", type=str, default="features/train_nofu", help="folder for storing the features")
     parser.add_argument("--temp_folder", type=str, default="tmp/train_nofu", help="temp folder")
     parser.add_argument("--train_repetitions", type=int, default=1, help="number of repeatitions for training")
-    parser.add_argument("--model", type=str, default="models/nofu", help="output model folder")
+    parser.add_argument("--model", type=str, default=os.path.join(MODEL_BASE_PATH, "nofu"), help="output model folder")
     parser.add_argument('--cpu_count', type=int, default=multiprocessing.cpu_count() // 2, help='thread/cpu count')
 
     a = vars(parser.parse_args())
