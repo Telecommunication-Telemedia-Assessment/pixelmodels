@@ -103,15 +103,13 @@ def load_features(feature_folder):
     return features
 
 def convert_dist(y_values):
-    def unify_dist(y, range_values, norm):
+    def unify_dist(y, range_values):
+        sum_ = sum([y[x] for x in y])
         for x in range_values:
-            y[x] = y.get(x, 0) / norm
+            y[x] = y.get(x, 0) / sum_
         return y
-    def sum_dist(y):
-        return sum([y[x] for x in y])
-
     range_values = set(sum([list(y.keys()) for y in y_values], []))
-    values = [unify_dist(y, range_values, sum_dist(y)) for y in y_values]
+    values = [unify_dist(y, range_values) for y in y_values]
     return pd.DataFrame(values)
 
 
