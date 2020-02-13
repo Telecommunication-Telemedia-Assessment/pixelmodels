@@ -194,7 +194,7 @@ def train_rf_models(features,
                     folder=modelfolder + "/_rating_dist/",
                     plotname=f"rf_mi_@{num_trees}_dist_{part}"
                 )
-                params["regression_performance_" + part] = metrics
+                params["regression_performance_dist_" + part] = metrics
             cval.to_csv(modelfolder + "/crossval_rating_dist.csv", index=False)
             continue
         # default case: regression
