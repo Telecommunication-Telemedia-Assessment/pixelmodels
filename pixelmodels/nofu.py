@@ -7,6 +7,7 @@ import multiprocessing
 
 from quat.log import *
 from quat.utils.system import *
+from quat.utils.fileutils import *
 from quat.unsorted import *
 from quat.parallel import *
 from quat.ml.mlcore import *
@@ -19,7 +20,7 @@ from pixelmodels.common import (
 )
 
 # this is the basepath, so for each type of model a separate file is stored
-NOFU_MODEL_PATH = os.path.dirname(__file__) + "/models/nofu/"
+NOFU_MODEL_PATH = os.path.dirname(__file__) + "/../models/nofu/"
 
 
 def nofu_features():
@@ -79,10 +80,12 @@ def main(_=[]):
     parser.add_argument("--feature_folder", type=str, default="./features/nofu", help="store features in a file, e.g. for training an own model")
     parser.add_argument("--temp_folder", type=str, default="./tmp/nofu", help="temp folder for intermediate results")
     parser.add_argument("--model", type=str, default=NOFU_MODEL_PATH, help="specified pre-trained model")
-    parser.add_argument('--output_report', type=str, default="report.json", help="output report of calculated values")
+    parser.add_argument('--output_report', type=str, default=None, help="output report of calculated values, None uses the video name as basis")
     parser.add_argument('--cpu_count', type=int, default=multiprocessing.cpu_count() // 2, help='thread/cpu count')
 
     a = vars(parser.parse_args())
+    if a["output_report"] is None:
+        a["output_report"] = get_filename_without_extension(a["video"]) + ".json"
 
     prediction = nofu_predict_video_score(
         a["video"],

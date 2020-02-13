@@ -9,6 +9,7 @@ from quat.ff.convert import (
     convert_to_avpvs,
     convert_to_avpvs_and_crop
 )
+from quat.ml.mlcore import load_serialized
 from quat.video import *
 from quat.utils.assertions import *
 from quat.visual.base_features import *
@@ -151,7 +152,7 @@ def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./
     return pooled_features, full_features
 
 
-def predict_video_score(features, model_base_path):
+def predict_video_score(features, model_base_path, clipping=True):
     # predict quality
     df = pd.DataFrame([features])
     columns = df.columns.difference(["video", "mos", "rating_dist"])
@@ -159,7 +160,7 @@ def predict_video_score(features, model_base_path):
     X = X.replace([np.inf, -np.inf], np.nan).fillna(0).values
 
     models = {
-        "mos": model_base_path + "/model_mos.npz",
+        "mos": model_base_path + "/model_regression.npz",
         "class": model_base_path + "/model_class.npz",
         "rating_dist": model_base_path + "/model_rating_dist.npz"
     }
@@ -169,8 +170,11 @@ def predict_video_score(features, model_base_path):
             model = load_serialized(models[m])
             predicted = model.predict(X)
             # apply clipping if needed
-            if clipping:
+            if clipping and m != "rating_dist":
                 predicted = np.clip(predicted, 1, 5)
+            predicted = [float(x) for x in predicted.flatten().tolist()]
+            if len(predicted) == 1:
+                predicted = predicted[0]
             results[m] = predicted
         else:
             lWarn(f"model {m} skipped, there is no trained model for this available, {models[m]}")
