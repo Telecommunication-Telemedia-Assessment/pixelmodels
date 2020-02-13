@@ -179,9 +179,21 @@ def train_rf_models(features,
             cval = result["crossval"]
 
             # perform per pair (predicted_N, truth_N) eval plots
-
+            for c in cval.columns:
+                if "predicted" in c:
+                    continue
+                truth_col = c
+                predicted_col = truth_col.replace("truth", "predicted")
+                part = truth_col.replace("truth_", "")
+                metrics = eval_plots_regression(
+                    cval[truth_col],
+                    cval[predicted_col],
+                    title=model + f"_{part}",
+                    folder=modelfolder + "/_rating_dist/",
+                    plotname=f"rf_mi_@{num_trees}_dist_{part}"
+                )
+                params["regression_performance_" + part] = metrics
             cval.to_csv(modelfolder + "/crossval_rating_dist.csv", index=False)
-
             continue
         # default case: regression
         lInfo(f"train {model} as regression")
@@ -201,7 +213,6 @@ def train_rf_models(features,
         metrics["number_features"] = result["number_features"]
         metrics["used_features"] = result["used_features"]
         params["regression_performance"] = metrics
-
 
     # store general model info
     jdump_file(modelfolder + "/info.json", params)
