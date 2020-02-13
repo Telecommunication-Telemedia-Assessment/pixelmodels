@@ -24,7 +24,7 @@ The following software is required:
 * ffmpeg
 * git
 
-To install all python3 dependencies, run the following command:
+To install all python3 dependencies, run the following command in the folder of this repository:
 
 ```bash
 poetry install
