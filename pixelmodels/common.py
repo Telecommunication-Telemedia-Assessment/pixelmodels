@@ -16,6 +16,9 @@ from quat.visual.base_features import *
 from quat.visual.image import *
 
 
+MODEL_BASE_PATH = os.path.abspath(os.path.dirname(__file__) + "/models")
+
+
 def get_repo_version():
     """
     returns a unified repo version for the final reports

@@ -24,7 +24,7 @@ from pixelmodels.common import (
 MODEL_BASE_PATH = os.path.abspath(os.path.dirname(__file__) + "/models")
 
 
-def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder, features=None, modelname="nofu"):
+def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder, features=None, modelname="nofu", meta=False):
     msg_assert(features is not None, "features need to be defined", "features ok")
     json_assert(video_and_rating, ["video", "mos", "rating_dist", "mos_class"])
 
@@ -47,7 +47,8 @@ def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder
         temp_folder,
         feature_folder,
         features,
-        modelname
+        modelname,
+        meta
     )
 
     if pooled_features is None or full_features is None:

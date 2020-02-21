@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# nofu -- no-reference video quality model
+# hyfu -- hybrid no-reference video quality model
 import argparse
 import sys
 import os
@@ -16,15 +16,14 @@ from quat.unsorted import jdump_file
 from pixelmodels.common import (
     extract_features_no_ref,
     get_repo_version,
-    predict_video_score,
-    MODEL_BASE_PATH
+    predict_video_score
 )
 
 # this is the basepath, so for each type of model a separate file is stored
-NOFU_MODEL_PATH = os.path.join(MODEL_BASE_PATH, "nofu")
+HYFU_MODEL_PATH = os.path.join(MODEL_BASE_PATH, "hyfu")
 
 
-def nofu_features():
+def hyfu_features():
     return {
         "contrast",
         "fft",
@@ -61,26 +60,26 @@ def nofu_features():
 
 
 
-def nofu_predict_video_score(video, temp_folder="./tmp", features_temp_folder="./tmp/features", clipping=True):
+def hyfu_predict_video_score(video, temp_folder="./tmp", features_temp_folder="./tmp/features", clipping=True):
     features, full_report = extract_features_no_ref(
         video,
         temp_folder=temp_folder,
         features_temp_folder=features_temp_folder,
-        featurenames=nofu_features(),
-        modelname="nofu"
+        featurenames=hyfu_features(),
+        modelname="hyfu"
     )
-    return predict_video_score(features, NOFU_MODEL_PATH)
+    return predict_video_score(features, HYFU_MODEL_PATH)
 
 
 def main(_=[]):
     # argument parsing
-    parser = argparse.ArgumentParser(description='nofu: a no-reference video quality model',
+    parser = argparse.ArgumentParser(description='hyfu: a hybrid no-reference video quality model',
                                      epilog=f"stg7 2020 {get_repo_version()}",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("video", type=str, help="video to predict video quality")
-    parser.add_argument("--feature_folder", type=str, default="./features/nofu", help="store features in a file, e.g. for training an own model")
-    parser.add_argument("--temp_folder", type=str, default="./tmp/nofu", help="temp folder for intermediate results")
-    parser.add_argument("--model", type=str, default=NOFU_MODEL_PATH, help="specified pre-trained model")
+    parser.add_argument("--feature_folder", type=str, default="./features/hyfu", help="store features in a file, e.g. for training an own model")
+    parser.add_argument("--temp_folder", type=str, default="./tmp/hyfu", help="temp folder for intermediate results")
+    parser.add_argument("--model", type=str, default=HYFU_MODEL_PATH, help="specified pre-trained model")
     parser.add_argument('--output_report', type=str, default=None, help="output report of calculated values, None uses the video name as basis")
     parser.add_argument('--cpu_count', type=int, default=multiprocessing.cpu_count() // 2, help='thread/cpu count')
 
@@ -88,7 +87,7 @@ def main(_=[]):
     if a["output_report"] is None:
         a["output_report"] = get_filename_without_extension(a["video"]) + ".json"
 
-    prediction = nofu_predict_video_score(
+    prediction = hyfu_predict_video_score(
         a["video"],
         temp_folder=a["temp_folder"],
         features_temp_folder=a["feature_folder"],
