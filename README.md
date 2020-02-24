@@ -60,5 +60,5 @@ To enable the rating distribution training additional data is required, that is.
 
 For each model a train_{modelname} tool is provided that can be started, e.g. for nofu with the following command line:
 ```bash
-poetry run train_nofu data/AVT-VQDB-UHD-1/test_1/mos_ci.csv
+poetry run train_nofu data/4k_databases_full/test_1/per_user.csv
 ```

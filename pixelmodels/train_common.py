@@ -21,7 +21,6 @@ from pixelmodels.common import (
     get_repo_version
 )
 
-MODEL_BASE_PATH = os.path.abspath(os.path.dirname(__file__) + "/models")
 
 
 def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder, features=None, modelname="nofu", meta=False):
