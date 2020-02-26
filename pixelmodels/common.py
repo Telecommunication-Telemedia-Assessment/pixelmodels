@@ -13,6 +13,7 @@ from quat.ml.mlcore import load_serialized
 from quat.video import *
 from quat.utils.assertions import *
 from quat.visual.base_features import *
+from quat.visual.fullref import *
 from quat.visual.image import *
 
 
@@ -29,7 +30,7 @@ def get_repo_version():
     return branch + "@" + sha
 
 
-def all_features():
+def all_no_ref_features():
     return {
         "contrast": ImageFeature(calc_contrast_features),
         "fft": ImageFeature(calc_fft_features),
@@ -60,11 +61,21 @@ def all_features():
         "niqe": ImageFeature(calc_niqe_features),
         "brisque": ImageFeature(calc_brisque_features),
         "ceiq": ImageFeature(ceiq),
-        "strred": StrredNoRefFeatures(),
+        "strred": StrredNoRefFeatures()
     }
 
 
-def unify_codec(x):
+def all_features():
+    full_ref_features = {
+        "ssim": SSIM(),
+        "psnr": PSNR(),
+        "vifp": VIFP(),
+        "fps": FramerateEstimator()
+    }
+    return dict(all_no_ref_features(), **full_ref_features)
+
+
+def unify_video_codec(x):
     if "h264" in x:
         return 0
     if "hevc" in x:
@@ -84,7 +95,7 @@ def extract_mode0_features(video):
         "framerate": float(meta["avg_frame_rate"]),
         "bitrate": float(meta["bitrate"]) / 1024,  # kbit/s
         "bitdepth": 8 if meta["bits_per_raw_sample"] == "unknown" else int(meta["bits_per_raw_sample"]),
-        "codec": unify_codec(meta["codec"]),
+        "codec": unify_video_codec(meta["codec"]),
         "resolution": int(meta["height"]) * int(meta["width"]),
     }
     # mode0 extended features
@@ -98,11 +109,7 @@ def extract_mode0_features(video):
     return mode0_features
 
 
-def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./tmp/features", featurenames=None, modelname="nofu", meta=False):
-    msg_assert(featurenames is not None, "featurenames are required to be defined", f"featurenames ok")
-    lInfo(f"handle : {video} for {modelname}")
-
-    all_feat = all_features()
+def filter_to_be_calculated_features(all_feat, featurenames, features_temp_folder):
     msg_assert(len(list(set(all_feat.keys()) & featurenames)) > 0, "feature set empty")
     msg_assert(len(list(set(featurenames - all_feat.keys()))) == 0, "feature set comtains features that are not defined")
     features = {}
@@ -110,20 +117,10 @@ def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./
         features[featurename] = all_feat[featurename]
 
     features_to_calculate = set([f for f in features.keys() if not features[f].load(features_temp_folder + "/" + f, video, f)])
-    i = 0
+    return features_to_calculate, features
 
-    lInfo(f"calculate missing features {features_to_calculate} for {video}")
-    if features_to_calculate != set():
-        # convert to avpvs (rescale) and crop
-        video_avpvs_crop = convert_to_avpvs_and_crop(video, temp_folder + "/crop/")
 
-        for frame in iterate_by_frame(video_avpvs_crop, convert=False):
-            for f in features_to_calculate:
-                x = features[f].calc(frame)
-                lInfo(f"handle frame {i} of {video}: {f} -> {x}")
-            i += 1
-        os.remove(video_avpvs_crop)
-
+def store_and_pool_features(features, video, meta, features_temp_folder):
     feature_files = []
     for f in features:
         feature_files.append(features[f].store(features_temp_folder + "/" + f, video, f))
@@ -151,14 +148,37 @@ def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./
         full_features["meta"] = metadata_features
         for m in metadata_features:
             pooled_features["meta_" + m] = metadata_features[m]
+    return pooled_features, full_features
 
+
+def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./tmp/features", featurenames=None, modelname="nofu", meta=False):
+    msg_assert(featurenames is not None, "featurenames are required to be defined", f"featurenames ok")
+    lInfo(f"handle : {video} for {modelname}")
+
+    all_feat = all_no_ref_features()
+    features_to_calculate, features = filter_to_be_calculated_features(all_feat, featurenames, features_temp_folder)
+    i = 0
+
+    lInfo(f"calculate missing features {features_to_calculate} for {video}")
+    if features_to_calculate != set():
+        # convert to avpvs (rescale) and crop
+        video_avpvs_crop = convert_to_avpvs_and_crop(video, temp_folder + "/crop/")
+
+        for frame in iterate_by_frame(video_avpvs_crop, convert=False):
+            for f in features_to_calculate:
+                x = features[f].calc(frame)
+                lInfo(f"handle frame {i} of {video}: {f} -> {x}")
+            i += 1
+        os.remove(video_avpvs_crop)
+
+    pooled_features, full_features = store_and_pool_features(features, video, meta, features_temp_folder)
     return pooled_features, full_features
 
 
 def predict_video_score(features, model_base_path, clipping=True):
     # predict quality
     df = pd.DataFrame([features])
-    columns = df.columns.difference(["video", "mos", "rating_dist"])
+    columns = df.columns.difference(["video", "src_video", "mos", "rating_dist"])
     X = df[sorted(columns)]
     X = X.replace([np.inf, -np.inf], np.nan).fillna(0).values
 
