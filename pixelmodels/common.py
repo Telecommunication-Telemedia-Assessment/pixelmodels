@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 import datetime
 
-import git
-
 from quat.ff.probe import ffprobe
 from quat.ff.convert import (
     crop_video,
@@ -13,6 +11,7 @@ from quat.ml.mlcore import load_serialized
 from quat.video import *
 from quat.utils.fileutils import get_filename_without_extension
 from quat.utils.assertions import *
+from quat.utils.system import shell_call
 from quat.visual.base_features import *
 from quat.visual.fullref import *
 from quat.visual.image import *
@@ -25,9 +24,9 @@ def get_repo_version():
     """
     returns a unified repo version for the final reports
     """
-    r = git.Repo(os.path.dirname(__file__) + "/..")
-    branch = str(r.active_branch)
-    sha = str(r.head.object.hexsha)
+    this_path = os.path.dirname(__file__)
+    sha = shell_call(f"cd {this_path} && git rev-parse HEAD").strip()
+    branch = shell_call(f"cd {this_path} && git rev-parse --abbrev-ref HEAD").strip()
     return branch + "@" + sha
 
 
