@@ -11,6 +11,7 @@ from quat.ff.convert import (
 )
 from quat.ml.mlcore import load_serialized
 from quat.video import *
+from quat.utils.fileutils import get_filename_without_extension
 from quat.utils.assertions import *
 from quat.visual.base_features import *
 from quat.visual.fullref import *
@@ -162,7 +163,7 @@ def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./
     lInfo(f"calculate missing features {features_to_calculate} for {video}")
     if features_to_calculate != set():
         # convert to avpvs (rescale) and crop
-        video_avpvs_crop = convert_to_avpvs_and_crop(video, temp_folder + "/crop/")
+        video_avpvs_crop = convert_to_avpvs_and_crop(video, f"{temp_folder}/crop/")
 
         for frame in iterate_by_frame(video_avpvs_crop, convert=False):
             for f in features_to_calculate:
@@ -172,6 +173,35 @@ def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./
         os.remove(video_avpvs_crop)
 
     pooled_features, full_features = store_and_pool_features(features, video, meta, features_temp_folder)
+    return pooled_features, full_features
+
+
+def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", features_temp_folder="./tmp/features", featurenames=None, modelname="fume", meta=False):
+    msg_assert(featurenames is not None, "featurenames are required to be defined", f"featurenames ok")
+    lInfo(f"handle : {dis_video} for {modelname}")
+
+    all_feat = all_features()
+    features_to_calculate, features = filter_to_be_calculated_features(all_feat, featurenames, features_temp_folder)
+    i = 0
+
+    lInfo(f"calculate missing features {features_to_calculate} for {dis_video}, {ref_video}")
+    if features_to_calculate != set():
+        dis_basename = get_filename_without_extension(dis_video)
+        # convert dis and ref video to to avpvs (rescale) and crop
+        # TODO: here it is assumed that it is always 4K 60 fps as reference
+        dis_video_avpvs_crop = convert_to_avpvs_and_crop(dis_video, f"{temp_folder}/crop/{dis_basename}")
+        ref_video_avpvs_crop = convert_to_avpvs_and_crop(ref_video, f"{temp_folder}/crop/{dis_basename}")
+
+        for d_frame, r_frame in iterate_by_frame_two_videos(dis_video_avpvs_crop, ref_video_avpvs_crop, convert=False):
+            for f in features_to_calculate:
+                x = features[f].calc_dis_ref(d_frame, r_frame)
+                lInfo(f"handle frame {i} of {dis_video}: {f} -> {x}")
+            i += 1
+
+        os.remove(dis_video_avpvs_crop)
+        os.remove(ref_video_avpvs_crop)
+
+    pooled_features, full_features = store_and_pool_features(features, dis_video, meta, features_temp_folder)
     return pooled_features, full_features
 
 
