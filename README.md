@@ -3,16 +3,7 @@
 The following repository consists of in total 4 pixel based video quality models.
 Including no-reference, full-reference and for each a hybrid mode 0 based version.
 
-If you use code, or the models in any research please cite the following paper
 
-```
-@inproceedings{goering2020pixel,
-  title={Pixel based Video Quality Models for 4K},
-  author={Steve G{\"{o}}ring and Rakesh Rao Ramachandra Rao and Bernhard Feiten and Alexander Raake},
-  year={2020},
-  organization={IEEE},
-}
-```
 
 ## Requirements
 The models and software is only tested on linux systems (e.g. Ubuntu 19.04)
@@ -64,3 +55,20 @@ poetry run train_nofu data/4k_databases_full/test_1/per_user.csv
 ```
 
 Important for training all features stored in the feature directory will be used, this ensures that multiple databases can be used for training.
+
+
+## Acknowledgements
+
+If you use this software in your research, please include a link to the repository and reference the following paper.
+
+```
+@inproceedings{goering2020pixel,
+  title={Pixel based Video Quality Models for 4K},
+  author={Steve G{\"{o}}ring and Rakesh Rao Ramachandra Rao and Bernhard Feiten and Alexander Raake},
+  year={2020},
+  organization={IEEE},
+}
+```
+
+## License
+GNU General Public License v3. See LICENSE.md file in this repository.
