@@ -1,8 +1,6 @@
 # Pixel based Video Quality Models for 4K
 
-The following repository consists of in total 4 pixel based video quality models.
-Including no-reference, full-reference and for each a hybrid mode 0 based version.
-
+The following repository consists of in total 4 pixel based video quality models, including no-reference, full-reference and for each a hybrid mode 0 based version.
 
 
 ## Requirements
