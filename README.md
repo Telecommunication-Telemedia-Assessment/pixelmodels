@@ -56,7 +56,7 @@ poetry run nofu test_videos/test_video_h264.mkv
 
 To retrain the models it is required to have CSV files according to the used format of [AVT-VQDB-UHD-1](https://github.com/Telecommunication-Telemedia-Assessment/AVT-VQDB-UHD-1)
 
-To enable the rating distribution training additional data is required, that is.e.g not part of the AVT-VQDB-UHD-1 dataset.
+To enable the rating distribution training additional data is required, that is not part of the AVT-VQDB-UHD-1 dataset.
 
 For each model a train_{modelname} tool is provided that can be started, e.g. for nofu with the following command line:
 ```bash
