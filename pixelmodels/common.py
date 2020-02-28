@@ -138,7 +138,7 @@ def extract_mode0_features(video):
     return mode0_features
 
 
-def filter_to_be_calculated_features(video, all_feat, featurenames, features_temp_folder):
+def __filter_to_be_calculated_features(video, all_feat, featurenames, features_temp_folder):
     """
     filters from the given featurenames , the features in all_feat that still need to be calculated,
     here also a loading of already calculated feature values is performed
@@ -153,7 +153,7 @@ def filter_to_be_calculated_features(video, all_feat, featurenames, features_tem
     return features_to_calculate, features
 
 
-def store_and_pool_features(video, features, meta, features_temp_folder):
+def __store_and_pool_features(video, features, meta, features_temp_folder):
     """
     stores `features` for a given `video` in the folder `features_temp_folder`, in case meta is true, 
     such features will be extended by mode0 meta-data based features
@@ -199,7 +199,7 @@ def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./
     lInfo(f"handle : {video} for {modelname}")
 
     all_feat = all_no_ref_features()
-    features_to_calculate, features = filter_to_be_calculated_features(video, all_feat, featurenames, features_temp_folder)
+    features_to_calculate, features = __filter_to_be_calculated_features(video, all_feat, featurenames, features_temp_folder)
     i = 0
 
     lInfo(f"calculate missing features {features_to_calculate} for {video}")
@@ -214,7 +214,7 @@ def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./
             i += 1
         os.remove(video_avpvs_crop)
 
-    pooled_features, full_features = store_and_pool_features(video, features, meta, features_temp_folder)
+    pooled_features, full_features = __store_and_pool_features(video, features, meta, features_temp_folder)
     return pooled_features, full_features
 
 
@@ -230,7 +230,7 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
     lInfo(f"handle : {dis_video} for {modelname}")
 
     all_feat = all_features()
-    features_to_calculate, features = filter_to_be_calculated_features(dis_video, all_feat, featurenames, features_temp_folder)
+    features_to_calculate, features = __filter_to_be_calculated_features(dis_video, all_feat, featurenames, features_temp_folder)
     i = 0
 
     lInfo(f"calculate missing features {features_to_calculate} for {dis_video}, {ref_video}")
@@ -250,7 +250,7 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
         os.remove(dis_video_avpvs_crop)
         os.remove(ref_video_avpvs_crop)
 
-    pooled_features, full_features = store_and_pool_features(dis_video, features, meta, features_temp_folder)
+    pooled_features, full_features = __store_and_pool_features(dis_video, features, meta, features_temp_folder)
     return pooled_features, full_features
 
 

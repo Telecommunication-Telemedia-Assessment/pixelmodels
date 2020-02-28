@@ -16,7 +16,8 @@ from quat.unsorted import jdump_file
 from pixelmodels.common import (
     extract_features_no_ref,
     get_repo_version,
-    predict_video_score
+    predict_video_score,
+    MODEL_BASE_PATH
 )
 
 # this is the basepath, so for each type of model a separate file is stored

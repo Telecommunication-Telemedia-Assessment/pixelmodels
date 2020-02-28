@@ -32,12 +32,12 @@ def main(_=[]):
     a = vars(parser.parse_args())
 
     # read videos with training targets
-    train_videos = read_train_database_no_ref(a["database"])
+    train_videos = read_train_database(a["database"])
     lInfo(f"train on {len(train_videos)} videos")
 
     run_parallel(
         items=train_videos,
-        function=calc_and_store_features_no_ref,
+        function=calc_and_store_features,
         arguments=[a["feature_folder"], a["temp_folder"], hyfu_features(), "hyfu", True],
         num_cpus=a["cpu_count"]
     )

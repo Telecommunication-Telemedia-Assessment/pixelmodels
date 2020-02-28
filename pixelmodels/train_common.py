@@ -18,15 +18,17 @@ from quat.ml.mlcore import (
 
 from pixelmodels.common import (
     extract_features_no_ref,
+    extract_features_full_ref,
     get_repo_version
 )
 
 
 
-def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder, features=None, modelname="nofu", meta=False):
+def calc_and_store_features(video_and_rating, feature_folder, temp_folder, features=None, modelname="nofu", meta=False):
     msg_assert(features is not None, "features need to be defined", "features ok")
     json_assert(video_and_rating, ["video", "mos", "rating_dist", "mos_class"])
 
+    full_ref = "src_video" in video_and_rating
     video = video_and_rating["video"]
     assert_file(video, True)
 
@@ -40,19 +42,32 @@ def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder
         with open(pooled_features_filename) as pfp:
             pooled_features = json.load(pfp)
         return pooled_features
-
-    pooled_features, full_features = extract_features_no_ref(
-        video,
-        temp_folder,
-        feature_folder,
-        features,
-        modelname,
-        meta
-    )
+    if full_ref:
+        pooled_features, full_features = extract_features_full_ref(
+            video,
+            video_and_rating["src_video"],
+            temp_folder,
+            feature_folder,
+            features,
+            modelname,
+            meta
+        )
+    else:
+        pooled_features, full_features = extract_features_no_ref(
+            video,
+            temp_folder,
+            feature_folder,
+            features,
+            modelname,
+            meta
+        )
 
     if pooled_features is None or full_features is None:
         lWarn(f"features and full_feature are empty, something wrong for {video}")
         return None
+
+    if full_ref:
+        pooled_features["src_video"] = video_and_rating["src_video"]
 
     pooled_features["mos"] = video_and_rating["mos"]
     pooled_features["rating_dist"] = video_and_rating["rating_dist"]
@@ -64,7 +79,7 @@ def calc_and_store_features_no_ref(video_and_rating, feature_folder, temp_folder
     return pooled_features
 
 
-def read_train_database_no_ref(database):
+def read_train_database(database, full_ref=False):
     df = pd.read_csv(database)
     msg_assert("MOS" in df.columns or "mos" in df.columns, "MOS needs to be part of database file", "MOS ok")
     msg_assert("video_name" in df.columns, "video_name needs to be part of database file", "video_name ok")
@@ -76,9 +91,10 @@ def read_train_database_no_ref(database):
         lWarn("rating distribution cannot be used for training, they are not part of the given database file")
 
     videos = []
+    dirname_database = os.path.dirname(database)
     for _, i in df.iterrows():
         video_filename_path = os.path.join(
-            os.path.dirname(database),
+            dirname_database,
             "segments",
             i["video_name"]
         )
@@ -86,13 +102,19 @@ def read_train_database_no_ref(database):
         for ucol in user_cols:
             rating_dist[i[ucol]] = rating_dist.get(i[ucol], 0) + 1
         assert_file(video_filename_path, True)
-
-        videos.append({
+        video = {
             "video": video_filename_path,
             "mos": i[mos_col],  # will be handled as regression
             "mos_class": int(round(i[mos_col], 0)),  # will be handled as classicication
             "rating_dist": rating_dist,  # will be handled as multi instance regression
-        })
+        }
+        if full_ref:
+            src_video_base = "_".join(i["video_name"].split("_")[0:-4]) 
+            src_video_pattern = dirname_database + f"/../src_videos/{src_video_base}.*"
+            src_video = lglob(src_video_pattern)
+            msg_assert(len(src_video) == 1, f"something wrong with src video mapping; check: {i['video_name']} and {src_video_base}")
+            video["src_video"] = os.path.abspath(src_video[0])
+        videos.append(video)
     return videos
 
 
@@ -124,7 +146,7 @@ def train_rf_models(features,
         graphs=True,
         save_model=True,
         target_cols=["mos", "rating_dist", "mos_class"],
-        exclude_cols=["video"],
+        exclude_cols=["video", "src_video"],
         modelfolder="models"):
 
     os.makedirs(modelfolder, exist_ok=True)
