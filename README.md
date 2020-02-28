@@ -62,3 +62,5 @@ For each model a train_{modelname} tool is provided that can be started, e.g. fo
 ```bash
 poetry run train_nofu data/4k_databases_full/test_1/per_user.csv
 ```
+
+Important for training all features stored in the feature directory will be used, this ensures that multiple databases can be used for training.
