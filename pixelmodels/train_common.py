@@ -188,7 +188,7 @@ def train_rf_models(features,
     df = pd.DataFrame(features)
     df.to_csv(os.path.join(modelfolder, "features.csv"), index=False)
 
-    print(df.head())
+    lInfo(df.head())
     models_to_train = [x for x in df.columns if x in target_cols]
     if len(set(target_cols) & set(models_to_train)) != len(target_cols):
         missing = set(target_cols) - set(models_to_train)
