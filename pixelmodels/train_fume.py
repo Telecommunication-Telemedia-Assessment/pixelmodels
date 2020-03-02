@@ -2,9 +2,6 @@
 import argparse
 import sys
 import multiprocessing
-from multiprocessing import Pool
-
-import pandas as pd
 
 from quat.log import *
 from quat.parallel import run_parallel

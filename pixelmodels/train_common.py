@@ -63,7 +63,7 @@ def calc_and_store_features(video_and_rating, feature_folder, temp_folder, featu
         )
 
     if pooled_features is None or full_features is None:
-        lWarn(f"features and full_feature are empty, something wrong for {video}")
+        lWarn(f"features or full_feature are empty, something wrong for {video}")
         return None
 
     if full_ref:
@@ -109,7 +109,7 @@ def read_train_database(database, full_ref=False):
             "rating_dist": rating_dist,  # will be handled as multi instance regression
         }
         if full_ref:
-            src_video_base = "_".join(i["video_name"].split("_")[0:-4]) 
+            src_video_base = "_".join(i["video_name"].split("_")[0:-4])
             src_video_pattern = dirname_database + f"/../src_videos/{src_video_base}.*"
             src_video = lglob(src_video_pattern)
             msg_assert(len(src_video) == 1, f"something wrong with src video mapping; check: {i['video_name']} and {src_video_base}")

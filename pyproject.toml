@@ -27,6 +27,8 @@ hyfu = "pixelmodels.hyfu:main"
 train_hyfu = "pixelmodels.train_hyfu:main"
 fume = "pixelmodels.fume:main"
 train_fume = "pixelmodels.train_fume:main"
+hyfr = "pixelmodels.hyfr:main"
+train_hyfr = "pixelmodels.train_hyfr:main"
 
 [build-system]
 requires = ["poetry>=1.0.3"]
