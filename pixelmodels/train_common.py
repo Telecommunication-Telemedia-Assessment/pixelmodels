@@ -25,6 +25,18 @@ from pixelmodels.common import (
 
 
 def calc_and_store_features(video_and_rating, feature_folder, temp_folder, features=None, modelname="nofu", meta=False):
+    """
+    calcualtes and stores features of the given video, in case features are already stored, reuse the stored ones
+
+    video_and_rating is a dictionary containing:
+        video_and_rating["video"]: video_filename_path
+        video_and_rating["mos"]: mos score
+        video_and_rating["rating_dist"]: rating_dist values
+        video_and_rating["mos_class"]: classification score
+
+        in case of a full-reference video quality model:
+        video_and_rating["src_video"]: source video
+    """
     msg_assert(features is not None, "features need to be defined", "features ok")
     json_assert(video_and_rating, ["video", "mos", "rating_dist", "mos_class"])
 
@@ -80,6 +92,18 @@ def calc_and_store_features(video_and_rating, feature_folder, temp_folder, featu
 
 
 def read_train_database(database, full_ref=False):
+    """
+    reads a training databases
+
+    in case full_ref: then also src videos are loaded
+
+    returns list of dicts with
+        video
+        mos
+        mos_class
+        rating_dist
+        src_video: optional
+    """
     df = pd.read_csv(database)
     msg_assert("MOS" in df.columns or "mos" in df.columns, "MOS needs to be part of database file", "MOS ok")
     msg_assert("video_name" in df.columns, "video_name needs to be part of database file", "video_name ok")
@@ -119,6 +143,10 @@ def read_train_database(database, full_ref=False):
 
 
 def load_features(feature_folder):
+    """
+    loads feature values from a folder,
+    here it is assumed that pooled features are plain json files
+    """
     assert_dir(feature_folder, True)
     features = []
     for features_filename in lglob(feature_folder + "/*.json"):
@@ -129,6 +157,9 @@ def load_features(feature_folder):
 
 
 def convert_dist(y_values):
+    """
+    convert and unify distribution values of individual ratings
+    """
     def unify_dist(y, range_values):
         sum_ = sum([y[x] for x in y])
         for x in range_values:
@@ -148,7 +179,10 @@ def train_rf_models(features,
         target_cols=["mos", "rating_dist", "mos_class"],
         exclude_cols=["video", "src_video"],
         modelfolder="models"):
-
+    """
+    train several random forest models (for each traget column one model,
+    depending on the given input values) to predict video quality
+    """
     os.makedirs(modelfolder, exist_ok=True)
 
     df = pd.DataFrame(features)
@@ -240,6 +274,3 @@ def train_rf_models(features,
 
     # store general model info
     jdump_file(modelfolder + "/info.json", params)
-
-
-
