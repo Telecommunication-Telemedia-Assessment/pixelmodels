@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import datetime
+import shutil
 
 from quat.ff.probe import ffprobe
 from quat.ff.convert import (
@@ -205,7 +206,11 @@ def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./
     lInfo(f"calculate missing features {features_to_calculate} for {video}")
     if features_to_calculate != set():
         # convert to avpvs (rescale) and crop
-        video_avpvs_crop = convert_to_avpvs_and_crop(video, f"{temp_folder}/crop/")
+        # assumes UHD-1/4K 60 fps video, yuv422p10le
+        video_avpvs_crop = convert_to_avpvs_and_crop(
+            video,
+            f"{temp_folder}/crop/"
+        )
 
         for frame in iterate_by_frame(video_avpvs_crop, convert=False):
             for f in features_to_calculate:
@@ -244,9 +249,23 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
         framerate = ffprobe_res["avg_frame_rate"]
         pix_fmt = ffprobe_res["pix_fmt"]
 
+        dis_crop_folder = f"{temp_folder}/crop/{dis_basename}_dis/"
+        ref_crop_folder = f"{temp_folder}/crop/{dis_basename}_ref/"
         # convert dis and ref video to to avpvs (rescale) and crop
-        dis_video_avpvs_crop = convert_to_avpvs_and_crop(dis_video, f"{temp_folder}/crop/{dis_basename}_dis/", width=width, height=height, framerate=framerate, pix_fmt=pix_fmt)
-        ref_video_avpvs_crop = convert_to_avpvs_and_crop(ref_video, f"{temp_folder}/crop/{dis_basename}_ref/", width=width, height=height, framerate=framerate, pix_fmt=pix_fmt)
+        dis_video_avpvs_crop = convert_to_avpvs_and_crop(
+            dis_video, dis_crop_folder,
+            width=width,
+            height=height,
+            framerate=framerate,
+            pix_fmt=pix_fmt
+        )
+        ref_video_avpvs_crop = convert_to_avpvs_and_crop(
+            ref_video, ref_crop_folder,
+            width=width,
+            height=height,
+            framerate=framerate,
+            pix_fmt=pix_fmt
+        )
 
         for d_frame, r_frame in iterate_by_frame_two_videos(dis_video_avpvs_crop, ref_video_avpvs_crop, convert=False):
             for f in features_to_calculate:
@@ -254,8 +273,10 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
                 lInfo(f"handle frame {i} of {dis_video}: {f} -> {x}")
             i += 1
 
-        os.remove(dis_video_avpvs_crop)
-        os.remove(ref_video_avpvs_crop)
+        shutil.rmtree(dis_crop_folder)
+        shutil.rmtree(ref_crop_folder)
+        # os.remove(dis_video_avpvs_crop)
+        # os.remove(ref_video_avpvs_crop)
 
     pooled_features, full_features = __store_and_pool_features(dis_video, features, meta, features_temp_folder)
     return pooled_features, full_features
