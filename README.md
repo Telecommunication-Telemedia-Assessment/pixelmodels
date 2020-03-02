@@ -1,6 +1,11 @@
 # Pixel based Video Quality Models for 4K
 
-The following repository consists of in total 4 pixel based video quality models, including no-reference, full-reference and for each a hybrid mode 0 based version.
+The following repository consists of in total four pixel based video quality prediction models, including no-reference, full-reference and for each baseline type a hybrid mode 0 based version.
+
+All models are able to be used for video quality prediction of short video sequences (up to 10 seconds) in case of UHD-1/4K resolution with 60fps.
+
+This repository also shipps pre-trained models (see pixelmodels/models) that are trained on dedicated performed subjective video quality tests.
+Moreover, all tools required to build new models are included in this repository, thus beside each models prediction code, e.g. `nofu`, also a `train_{modelname}` script is provided.
 
 
 ## Requirements
@@ -25,10 +30,10 @@ poetry will manage a local virtual environment with suitable versions of all dep
 ## Included video quality models
 In total in this repository four video quality models are included:
 
-* nofu: no-reference pixel based model
-* hyfu: hybrid no-reference pixel based model
-* fume: full-reference pixel based model
-* hyfr: hybrid full-reference model
+* `nofu`: no-reference pixel based model
+* `hyfu`: hybrid no-reference pixel based model
+* `fume`: full-reference pixel based model
+* `hyfr`: hybrid full-reference model
 
 Both hybrid models require access to bitrate, resolution, codec and framerate.
 This meta-data will be automatically extracted from the given video files.
@@ -45,14 +50,18 @@ poetry run nofu test_videos/test_video_h264.mkv
 
 To retrain the models it is required to have CSV files according to the used format of [AVT-VQDB-UHD-1](https://github.com/Telecommunication-Telemedia-Assessment/AVT-VQDB-UHD-1)
 
-To enable the rating distribution training additional data is required, that is not part of the AVT-VQDB-UHD-1 dataset.
+To enable the rating distribution training additional data is required, this is not official part of the AVT-VQDB-UHD-1 dataset, in case you need it contact the authors of this database.
 
-For each model a train_{modelname} tool is provided that can be started, e.g. for nofu with the following command line:
+For each model a `train_{modelname}` tool is provided that can be started, e.g. for nofu with the following command line:
 ```bash
 poetry run train_nofu data/4k_databases_full/test_1/per_user.csv
 ```
 
-Important for training all features stored in the feature directory will be used, this ensures that multiple databases can be used for training.
+Important for training all features stored in the feature directory will be used, this ensures that multiple databases can be used for an incremental and overall training.
+
+## General Architecture
+![General Architecture of Models](./general_architecture.svg)
+
 
 
 ## Acknowledgements
