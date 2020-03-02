@@ -63,7 +63,7 @@ Important for training all features stored in the feature directory will be used
 ![General Architecture of Models](./general_architecture.svg)
 
 The general architecture of all models consists of performing a center cropping (default value is a 360p center crop) on the re-scaled videos (e.g. reference and distorted videos are unified to have the same resolutions/framerate/pixel format).
-Afterwards for each video (e.g. only the distorted or distorted and reference) features for each frame and motion related features are estimated, here depending on the model the number of features vary.
+Afterwards for each video (e.g. only the distorted or distorted and reference) features for each frame and motion related features are estimated, here depending on the model the number of features varies.
 After the feature extraction is performed, all extracted values for a given input video are temporally pooled to remove time dependencies.
 The pooled feature values are later feed into a machine learning pipeline, that is random forest based.
 
