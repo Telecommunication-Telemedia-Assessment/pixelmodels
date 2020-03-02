@@ -237,6 +237,7 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
     if features_to_calculate != set():
         dis_basename = get_filename_without_extension(dis_video)
 
+        # extract reference video properties
         ffprobe_res = ffprobe(ref_video)
         width = ffprobe_res["width"]
         height = ffprobe_res["height"]
@@ -248,8 +249,6 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
         ref_video_avpvs_crop = convert_to_avpvs_and_crop(ref_video, f"{temp_folder}/crop/{dis_basename}_ref/", width=width, height=height, framerate=framerate, pix_fmt=pix_fmt)
 
         for d_frame, r_frame in iterate_by_frame_two_videos(dis_video_avpvs_crop, ref_video_avpvs_crop, convert=False):
-            print(d_frame.shape)
-            print(r_frame.shape)
             for f in features_to_calculate:
                 x = features[f].calc_dis_ref(d_frame, r_frame)
                 lInfo(f"handle frame {i} of {dis_video}: {f} -> {x}")
