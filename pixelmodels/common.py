@@ -70,7 +70,7 @@ def all_no_ref_features():
 
 def all_features():
     """
-    returns all possible features, full- and no-reference 
+    returns all possible features, full- and no-reference
     """
     full_ref_features = {
         "ssim": SSIM(),
@@ -83,8 +83,8 @@ def all_features():
 
 def unify_video_codec(video_codec_name):
     """
-    maps ffmpeg video codec name to a number, 
-    
+    maps ffmpeg video codec name to a number,
+
     Returns
     h264=0, h265=1, vp9=2
     """
@@ -107,7 +107,7 @@ def extract_mode0_features(video):
 
     Dictionary with:
     - framerate : float
-    - bitrate : float in kbit/s 
+    - bitrate : float in kbit/s
     - codec : int (coded as integer: h264=0, h265=1, vp9=2)
     - resolution : int (height * width)
     - bpp : float, bits per pixel
@@ -155,7 +155,7 @@ def __filter_to_be_calculated_features(video, all_feat, featurenames, features_t
 
 def __store_and_pool_features(video, features, meta, features_temp_folder):
     """
-    stores `features` for a given `video` in the folder `features_temp_folder`, in case meta is true, 
+    stores `features` for a given `video` in the folder `features_temp_folder`, in case meta is true,
     such features will be extended by mode0 meta-data based features
     """
     feature_files = []
@@ -236,12 +236,20 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
     lInfo(f"calculate missing features {features_to_calculate} for {dis_video}, {ref_video}")
     if features_to_calculate != set():
         dis_basename = get_filename_without_extension(dis_video)
+
+        ffprobe_res = ffprobe(ref_video)
+        width = ffprobe_res["width"]
+        height = ffprobe_res["height"]
+        framerate = ffprobe_res["avg_frame_rate"]
+        pix_fmt = ffprobe_res["pix_fmt"]
+
         # convert dis and ref video to to avpvs (rescale) and crop
-        # TODO: here it is assumed that it is always 4K 60 fps as reference
-        dis_video_avpvs_crop = convert_to_avpvs_and_crop(dis_video, f"{temp_folder}/crop/{dis_basename}_dis/")
-        ref_video_avpvs_crop = convert_to_avpvs_and_crop(ref_video, f"{temp_folder}/crop/{dis_basename}_ref/")
+        dis_video_avpvs_crop = convert_to_avpvs_and_crop(dis_video, f"{temp_folder}/crop/{dis_basename}_dis/", width=width, height=height, framerate=framerate, pix_fmt=pix_fmt)
+        ref_video_avpvs_crop = convert_to_avpvs_and_crop(ref_video, f"{temp_folder}/crop/{dis_basename}_ref/", width=width, height=height, framerate=framerate, pix_fmt=pix_fmt)
 
         for d_frame, r_frame in iterate_by_frame_two_videos(dis_video_avpvs_crop, ref_video_avpvs_crop, convert=False):
+            print(d_frame.shape)
+            print(r_frame.shape)
             for f in features_to_calculate:
                 x = features[f].calc_dis_ref(d_frame, r_frame)
                 lInfo(f"handle frame {i} of {dis_video}: {f} -> {x}")
