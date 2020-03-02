@@ -4,7 +4,7 @@ The following repository consists of in total four pixel based video quality pre
 
 All models are able to be used for video quality prediction of short video sequences (up to 10 seconds) in case of UHD-1/4K resolution with 60fps.
 
-This repository also shipps pre-trained models (see pixelmodels/models) that are trained on dedicated performed subjective video quality tests.
+This repository also ships pre-trained models (see pixelmodels/models) that are trained on dedicated performed subjective video quality tests.
 Moreover, all tools required to build new models are included in this repository, thus beside each models prediction code, e.g. `nofu`, also a `train_{modelname}` script is provided.
 
 
@@ -37,7 +37,7 @@ In total in this repository four video quality models are included:
 
 Both hybrid models require access to bitrate, resolution, codec and framerate.
 This meta-data will be automatically extracted from the given video files.
-A full description of the models is presented in the mentioned paper `goering2020pixel`, see [Acknowledgements](#acknowledgements).
+A full description of the models is presented in the mentioned paper `goering2020pixel`, see [Acknowledgments](#acknowledgments).
 
 ### Usage nofu
 
@@ -75,7 +75,7 @@ All developed models can be used to predict:
 
 For more details about the features and pipeline, checkout the paper `goering2020pixel`.
 
-## Acknowledgements
+## Acknowledgments
 
 If you use this software in your research, please include a link to the repository and reference the following paper.
 
