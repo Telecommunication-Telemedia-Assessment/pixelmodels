@@ -29,7 +29,7 @@ def main(_=[]):
     a = vars(parser.parse_args())
 
     # read videos with training targets
-    train_videos = read_train_database(a["database"], full_ref=True)
+    train_videos = read_database(a["database"], full_ref=True)
     lInfo(f"train on {len(train_videos)} videos")
 
     run_parallel(

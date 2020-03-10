@@ -43,7 +43,7 @@ A full description of the models is presented in the mentioned paper `goering202
 
 To use the provided tool, e.g. run
 ```bash
-poetry run nofu test_videos/test_video_h264.mkv
+poetry run nofu predict test_videos/test_video_h264.mkv
 ```
 
 ### Retraining the models

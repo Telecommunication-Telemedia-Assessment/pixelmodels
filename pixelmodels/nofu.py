@@ -11,8 +11,11 @@ from quat.utils.fileutils import *
 from quat.unsorted import *
 from quat.parallel import *
 from quat.ml.mlcore import *
-
 from quat.unsorted import jdump_file
+
+from pixelmodels.train_common import (
+    read_database
+)
 from pixelmodels.common import (
     extract_features_no_ref,
     get_repo_version,
@@ -74,29 +77,82 @@ def nofu_predict_video_score(video, temp_folder="./tmp", features_temp_folder=".
 
 def main(_=[]):
     # argument parsing
-    parser = argparse.ArgumentParser(description='nofu: a no-reference video quality model',
-                                     epilog=f"stg7 2020 {get_repo_version()}",
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("video", type=str, help="video to predict video quality")
+    parser = argparse.ArgumentParser(
+        description='nofu: a no-reference video quality model',
+        epilog=f"stg7 2020 {get_repo_version()}",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
     parser.add_argument("--feature_folder", type=str, default="./features/nofu", help="store features in a file, e.g. for training an own model")
     parser.add_argument("--temp_folder", type=str, default="./tmp/nofu", help="temp folder for intermediate results")
     parser.add_argument("--model", type=str, default=NOFU_MODEL_PATH, help="specified pre-trained model")
-    parser.add_argument('--output_report', type=str, default=None, help="output report of calculated values, None uses the video name as basis")
-    parser.add_argument('--cpu_count', type=int, default=multiprocessing.cpu_count() // 2, help='thread/cpu count')
+
+    subparsers = parser.add_subparsers(
+        help='sub commands',
+        dest="command"
+    )
+
+    predict = subparsers.add_parser(
+        'predict',
+        help='predict video quality of single video'
+    )
+    predict.add_argument(
+        'video',
+        type=str,
+        help='video to predict video quality'
+    )
+    predict.add_argument(
+        '--output_report',
+        type=str,
+        default=None,
+        help="output report of calculated values, None uses the video name as basis"
+    )
+
+    batch = subparsers.add_parser(
+        'batch',
+        help='perform batch prediction of a full database'
+    )
+    batch.add_argument(
+        'database',
+        type=str,
+        help='csv file of database, e.g. per_user.csv'
+    )
+    batch.add_argument(
+        '--cpu_count',
+        type=int,
+        default=multiprocessing.cpu_count() // 2,
+        help='thread/cpu count'
+    )
+    predict.add_argument(
+        '--output_report_folder',
+        type=str,
+        default="reports/nofu",
+        help="folder for output reports of calculated values, video name is used as basis"
+    )
 
     a = vars(parser.parse_args())
-    if a["output_report"] is None:
-        a["output_report"] = get_filename_without_extension(a["video"]) + ".json"
 
-    prediction = nofu_predict_video_score(
-        a["video"],
-        temp_folder=a["temp_folder"],
-        features_temp_folder=a["feature_folder"],
-        clipping=True
-    )
-    jprint(prediction)
-    jdump_file(a["output_report"], prediction)
+    if a["command"] == "predict":
+        if a["output_report"] is None:
+            a["output_report"] = get_filename_without_extension(a["video"]) + ".json"
 
+        prediction = nofu_predict_video_score(
+            a["video"],
+            temp_folder=a["temp_folder"],
+            features_temp_folder=a["feature_folder"],
+            clipping=True
+        )
+        jprint(prediction)
+        jdump_file(a["output_report"], prediction)
+
+    if a["command"] == "batch":
+        lInfo("batch prediction")
+        videos = [x["video"] for x in read_database(a["database"])]
+        run_parallel(
+            items=videos,
+            function=nofu_predict_video_score,
+            arguments=[a["temp_folder"], a["feature_folder"], True],
+            num_cpus=a["cpu_count"]
+        )
 
 
 if __name__ == "__main__":

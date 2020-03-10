@@ -91,9 +91,9 @@ def calc_and_store_features(video_and_rating, feature_folder, temp_folder, featu
     return pooled_features
 
 
-def read_train_database(database, full_ref=False):
+def read_database(database, full_ref=False):
     """
-    reads a training databases
+    reads a databases
 
     in case full_ref: then also src videos are loaded
 
