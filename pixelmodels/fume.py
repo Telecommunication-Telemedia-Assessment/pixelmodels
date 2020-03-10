@@ -96,13 +96,13 @@ def main(_=[]):
         help='predict video quality of single video'
     )
     predict.add_argument(
-        "dis_video", 
-        type=str, 
+        "dis_video",
+        type=str,
         help="distorted video to predict video quality"
     )
     predict.add_argument(
-        "ref_video", 
-        type=str, 
+        "ref_video",
+        type=str,
         help="source video"
     )
     predict.add_argument(
@@ -127,7 +127,7 @@ def main(_=[]):
         default=multiprocessing.cpu_count() // 2,
         help='thread/cpu count'
     )
-    predict.add_argument(
+    batch.add_argument(
         '--output_report_folder',
         type=str,
         default="reports/fume",
@@ -153,12 +153,19 @@ def main(_=[]):
     if a["command"] == "batch":
         lInfo("batch prediction")
         videos = [[x["video"], x["src_video"]] for x in read_database(a["database"], full_ref=True)]
-        run_parallel(
+        results = run_parallel(
             items=videos,
             function=fume_predict_video_score,
             arguments=[a["temp_folder"], a["feature_folder"], True],
             num_cpus=a["cpu_count"]
         )
+        os.makedirs(a["output_report_folder"], exist_ok=True)
+        for i, result in enumerate(results):
+            report_filename = get_filename_without_extension(videos[i][0]) + ".json"
+            jdump_file(
+                os.path.join(a["output_report_folder"], report_filename),
+                result
+            )
 
 
 if __name__ == "__main__":

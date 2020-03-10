@@ -122,7 +122,7 @@ def main(_=[]):
         default=multiprocessing.cpu_count() // 2,
         help='thread/cpu count'
     )
-    predict.add_argument(
+    batch.add_argument(
         '--output_report_folder',
         type=str,
         default="reports/nofu",
@@ -147,12 +147,19 @@ def main(_=[]):
     if a["command"] == "batch":
         lInfo("batch prediction")
         videos = [x["video"] for x in read_database(a["database"])]
-        run_parallel(
+        results = run_parallel(
             items=videos,
             function=nofu_predict_video_score,
             arguments=[a["temp_folder"], a["feature_folder"], True],
             num_cpus=a["cpu_count"]
         )
+        os.makedirs(a["output_report_folder"], exist_ok=True)
+        for i, result in enumerate(results):
+            report_filename = get_filename_without_extension(videos[i]) + ".json"
+            jdump_file(
+                os.path.join(a["output_report_folder"], report_filename),
+                result
+            )
 
 
 if __name__ == "__main__":
