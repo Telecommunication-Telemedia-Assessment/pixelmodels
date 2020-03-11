@@ -5,6 +5,7 @@ import pandas as pd
 
 from quat.log import *
 from quat.utils.assertions import *
+from quat.utils.fileutils import *
 from quat.utils.system import lglob
 from quat.unsorted import jdump_file
 from quat.ml.mlcore import (
@@ -133,11 +134,17 @@ def read_database(database, full_ref=False):
             "rating_dist": rating_dist,  # will be handled as multi instance regression
         }
         if full_ref:
-            src_video_base = "_".join(i["video_name"].split("_")[0:-4])
-            src_video_pattern = dirname_database + f"/../src_videos/{src_video_base}.*"
-            src_video = lglob(src_video_pattern)
-            msg_assert(len(src_video) == 1, f"something wrong with src video mapping; check: {i['video_name']} and {src_video_base}")
-            video["src_video"] = os.path.abspath(src_video[0])
+            src_video_pattern = dirname_database + f"/../src_videos/*"
+            src_videos = lglob(src_video_pattern)
+            matching_src_videos = list(filter(
+                lambda x: get_filename_without_extension(x) in i["video_name"],
+                src_videos
+                )
+            )
+            msg_assert(len(matching_src_videos) >= 1, f"something wrong with src video mapping; check: {i['video_name']}")
+            # take longest matching src_video (in case two are matching)
+            matching_src_videos = sorted(matching_src_videos)
+            video["src_video"] = os.path.abspath(matching_src_videos[-1])
         videos.append(video)
     return videos
 
