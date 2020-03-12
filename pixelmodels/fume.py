@@ -93,7 +93,8 @@ def main(_=[]):
 
     predict = subparsers.add_parser(
         'predict',
-        help='predict video quality of single video'
+        help='predict video quality of single video',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     predict.add_argument(
         "dis_video",
@@ -114,7 +115,8 @@ def main(_=[]):
 
     batch = subparsers.add_parser(
         'batch',
-        help='perform batch prediction of a full database'
+        help='perform batch prediction of a full database',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     batch.add_argument(
         'database',
