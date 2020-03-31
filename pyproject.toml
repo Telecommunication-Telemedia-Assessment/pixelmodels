@@ -1,10 +1,14 @@
+[build-system]
+requires = [ "poetry>=1.0.3",]
+build-backend = "poetry.masonry.api"
+
 [tool.poetry]
 name = "pixelmodels"
-version = "0.1.0"
+version = "0.1.1"
 description = "Pixel based video quality models"
 readme = "README.md"
-authors = ["Steve Göring <steve.goering@tu-ilmenau.de>", "Ramachandra Rao Rakesh Rao <Rakesh-Rao.Ramachandra-Rao@tu-ilmenau.de>"]
-license ="GPL 3"
+authors = [ "Steve Göring <steve.goering@tu-ilmenau.de>", "Ramachandra Rao Rakesh Rao <Rakesh-Rao.Ramachandra-Rao@tu-ilmenau.de>",]
+license = "GPL 3"
 
 [tool.poetry.dependencies]
 python = "^3.6.1"
@@ -14,8 +18,6 @@ joblib = ">=0.14.1"
 scipy = "^1.4.1"
 pandas = "^1.0.0"
 opencv-python = "^4.2.0.32"
-scikit-video = {git="https://github.com/scikit-video/scikit-video.git", branch="master"}  # latest is required for working brisque niqe
-quat = {git="git@avt10.rz.tu-ilmenau.de:avt-virq/quat.git", branch="master"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.6"
@@ -30,7 +32,10 @@ train_fume = "pixelmodels.train_fume:main"
 hyfr = "pixelmodels.hyfr:main"
 train_hyfr = "pixelmodels.train_hyfr:main"
 
-[build-system]
-requires = ["poetry>=1.0.3"]
-build-backend = "poetry.masonry.api"
+[tool.poetry.dependencies.scikit-video]
+git = "https://github.com/scikit-video/scikit-video.git"
+branch = "master"
 
+[tool.poetry.dependencies.quat]
+git = "git@avt10.rz.tu-ilmenau.de:avt-virq/quat.git"
+branch = "master"
