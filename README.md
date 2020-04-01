@@ -60,7 +60,7 @@ poetry run train_nofu data/4k_databases_full/test_1/per_user.csv
 Important for training all features stored in the feature directory will be used, this ensures that multiple databases can be used for an incremental and overall training.
 
 ## General Architecture
-![General Architecture of Models](./general_architecture.svg)
+![General Architecture of Models](./general_architecture.png)
 
 The general architecture of all models consists of performing a center cropping (default value is a 360p center crop) on the re-scaled videos (e.g. reference and distorted videos are unified to have the same resolutions/framerate/pixel format).
 Afterwards for each video (e.g. only the distorted or distorted and reference) features for each frame and motion related features are estimated, here depending on the model the number of features varies.
