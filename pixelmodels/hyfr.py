@@ -64,7 +64,7 @@ def hyfr_features():
 
 
 
-def hyfr_predict_video_score(dis_video, ref_video, temp_folder="./tmp", features_temp_folder="./tmp/features", clipping=True):
+def hyfr_predict_video_score(dis_video, ref_video, temp_folder="./tmp", features_temp_folder="./tmp/features", model_path=HYFR_MODEL_PATH, clipping=True):
     features, full_report = extract_features_full_ref(
         dis_video,
         ref_video,
@@ -74,7 +74,7 @@ def hyfr_predict_video_score(dis_video, ref_video, temp_folder="./tmp", features
         modelname="hyfr",
         meta=True
     )
-    return predict_video_score(features, HYFR_MODEL_PATH)
+    return predict_video_score(features, model_path)
 
 
 def main(_=[]):
@@ -149,6 +149,7 @@ def main(_=[]):
             a["ref_video"],
             temp_folder=a["temp_folder"],
             features_temp_folder=a["feature_folder"],
+            model_path=a["model"],
             clipping=True
         )
         jprint(prediction)
@@ -160,8 +161,9 @@ def main(_=[]):
         results = run_parallel(
             items=videos,
             function=hyfr_predict_video_score,
-            arguments=[a["temp_folder"], a["feature_folder"], True],
-            num_cpus=a["cpu_count"]
+            arguments=[a["temp_folder"], a["feature_folder"], a["model"], True],
+            num_cpus=a["cpu_count"],
+            multi_item=True
         )
         os.makedirs(a["output_report_folder"], exist_ok=True)
         for i, result in enumerate(results):

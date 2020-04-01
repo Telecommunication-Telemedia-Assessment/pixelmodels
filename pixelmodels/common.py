@@ -294,6 +294,7 @@ def predict_video_score(features, model_base_path, clipping=True):
     columns = df.columns.difference(["video", "src_video", "mos", "rating_dist"])
     X = df[sorted(columns)]
     X = X.replace([np.inf, -np.inf], np.nan).fillna(0).values
+    lInfo(f"loaded features {len(df)}: shape: {X.shape}")
 
     models = {
         "mos": model_base_path + "/model_regression.npz",
@@ -303,6 +304,7 @@ def predict_video_score(features, model_base_path, clipping=True):
     results = {}
     for m in models:
         if os.path.isfile(models[m]):
+            lInfo(f"handle model {m}: {models[m]}")
             model = load_serialized(models[m])
             predicted = model.predict(X)
             # apply clipping if needed

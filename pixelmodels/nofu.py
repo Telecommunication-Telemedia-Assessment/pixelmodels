@@ -64,7 +64,7 @@ def nofu_features():
 
 
 
-def nofu_predict_video_score(video, temp_folder="./tmp", features_temp_folder="./tmp/features", clipping=True):
+def nofu_predict_video_score(video, temp_folder="./tmp", features_temp_folder="./tmp/features", model_path=NOFU_MODEL_PATH, clipping=True):
     features, full_report = extract_features_no_ref(
         video,
         temp_folder=temp_folder,
@@ -72,7 +72,7 @@ def nofu_predict_video_score(video, temp_folder="./tmp", features_temp_folder=".
         featurenames=nofu_features(),
         modelname="nofu"
     )
-    return predict_video_score(features, NOFU_MODEL_PATH)
+    return predict_video_score(features, model_path)
 
 
 def main(_=[]):
@@ -141,6 +141,7 @@ def main(_=[]):
             a["video"],
             temp_folder=a["temp_folder"],
             features_temp_folder=a["feature_folder"],
+            model_path=a["model"],
             clipping=True
         )
         jprint(prediction)
@@ -152,7 +153,7 @@ def main(_=[]):
         results = run_parallel(
             items=videos,
             function=nofu_predict_video_score,
-            arguments=[a["temp_folder"], a["feature_folder"], True],
+            arguments=[a["temp_folder"], a["feature_folder"], a["model"], True],
             num_cpus=a["cpu_count"]
         )
         os.makedirs(a["output_report_folder"], exist_ok=True)
