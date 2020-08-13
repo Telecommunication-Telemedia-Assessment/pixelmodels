@@ -165,7 +165,8 @@ def main(_=[]):
         )
         os.makedirs(a["output_report_folder"], exist_ok=True)
         for i, result in enumerate(results):
-            report_filename = get_filename_without_extension(videos[i][0]) + ".json"
+            dn = os.path.normpath(os.path.dirname(videos[i])).replace(os.sep, "_")
+            report_filename = dn + get_filename_without_extension(videos[i]) + ".json"
             jdump_file(
                 os.path.join(a["output_report_folder"], report_filename),
                 result
