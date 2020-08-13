@@ -45,7 +45,8 @@ def calc_and_store_features(video_and_rating, feature_folder, temp_folder, featu
     video = video_and_rating["video"]
     assert_file(video, True)
 
-    video_base_name = os.path.basename(os.path.dirname(video)) + "_" + os.path.basename(video)
+    dn = os.path.normpath(os.path.dirname(video)).replace(os.sep, "_")
+    video_base_name = dn + "_" + os.path.basename(os.path.splitext(video)[0])
 
     pooled_features_filename = f"{feature_folder}/{video_base_name}.json"
     full_features_filename = pooled_features_filename + ".full"
