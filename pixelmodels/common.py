@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import datetime
+import os
 import shutil
 
 from quat.ff.probe import ffprobe
@@ -19,6 +20,55 @@ from quat.visual.image import *
 
 
 MODEL_BASE_PATH = os.path.abspath(os.path.dirname(__file__) + "/models")
+
+# TO BE CLEANED. CompressibilityFeature seems to be less usefule
+import tempfile
+
+class CompressibilityFeature(Feature):
+    def __init__(self):
+        self._values = []
+        self._writer = None
+
+    def calc(self, frame, debug=False):
+        if self._writer is None:
+            tf = tempfile.NamedTemporaryFile()
+            os.makedirs("./compressibility", exist_ok=True)
+            self._video_filename = "./compressibility/" + os.path.basename(tf.name) + ".mp4"
+            self._writer = skvideo.io.FFmpegWriter(
+                self._video_filename,
+                inputdict={
+                    "-r": "60",
+                },
+                outputdict={
+                    "-r": "60",
+                    "-c:v": "libx264",
+                    "-preset": "medium",
+                    "-crf": "24"
+                }
+            )
+        self._writer.writeFrame(frame)
+        #filesize = os.stat(self._video_filename).st_size  / 1024 / 1024
+        #self._values.append(filesize)
+        return 0 #filesize  # here only fake values are returned
+
+    def store(self, folder, video, name=""):
+        if self._writer is not None:
+            self._writer.close()
+            filesize = os.stat(self._video_filename).st_size  / 1024 / 1024
+            self._values.append(filesize)
+        return super().store(folder, video, name)
+
+    def get_values(self):
+        if len(self._values) == 0:
+            print("this should not happen, please call store before")
+            assert(False)
+        return self._values
+
+    def __del__(self):
+        try:
+            self._writer.close()
+        except:
+            return
 
 
 def get_repo_version():
@@ -65,7 +115,8 @@ def all_no_ref_features():
         "niqe": ImageFeature(calc_niqe_features),
         "brisque": ImageFeature(calc_brisque_features),
         "ceiq": ImageFeature(ceiq),
-        "strred": StrredNoRefFeatures()
+        "strred": StrredNoRefFeatures(),
+        "compressibility": CompressibilityFeature()
     }
 
 
@@ -166,18 +217,17 @@ def __store_and_pool_features(video, features, meta, features_temp_folder):
     pooled_features = {}
     per_frame_features = {}
     for f in features:
-        pooled_features = dict(advanced_pooling(features[f].get_values(), name=f), **pooled_features)
-        per_frame_features = dict({f:features[f].get_values()}, **per_frame_features)
-
-    per_video_features = {}  #  TODO: think about: video_compressibility()
-
-    for m in per_video_features:
-        pooled_features["video_" + m] = per_video_features[m]
+        values = features[f].get_values()
+        # TODO: this handling should be done by advanced_pooling...
+        if len(values) == 1:
+            pooled_features = dict({f: values[0]}, **pooled_features)
+        else:
+            pooled_features = dict(advanced_pooling(values, name=f), **pooled_features)
+        per_frame_features = dict({f:values}, **per_frame_features)
 
     full_features = {
         "video_name": video,
-        "per_frame": per_frame_features,
-        "per_video": per_video_features
+        "per_frame": per_frame_features
     }
     # this is only used if it is a hybrid model, thus extend features by mode0 features
     if meta:
@@ -249,6 +299,7 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
         framerate = ffprobe_res["avg_frame_rate"]
         pix_fmt = ffprobe_res["pix_fmt"]
 
+        lInfo(f"estimated src meta-data {width}x{height}@{framerate}:{pix_fmt}")
         dis_crop_folder = f"{temp_folder}/crop/{dis_basename}_dis/"
         ref_crop_folder = f"{temp_folder}/crop/{dis_basename}_ref/"
         # convert dis and ref video to to avpvs (rescale) and crop
@@ -273,8 +324,9 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
                 lInfo(f"handle frame {i} of {dis_video}: {f} -> {x}")
             i += 1
 
-        shutil.rmtree(dis_crop_folder)
-        shutil.rmtree(ref_crop_folder)
+        # TODO: remove temp files
+        #shutil.rmtree(dis_crop_folder)
+        #shutil.rmtree(ref_crop_folder)
         # os.remove(dis_video_avpvs_crop)
         # os.remove(ref_video_avpvs_crop)
 
