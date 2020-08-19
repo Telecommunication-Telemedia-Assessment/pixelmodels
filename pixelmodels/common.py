@@ -21,31 +21,45 @@ from quat.visual.image import *
 
 MODEL_BASE_PATH = os.path.abspath(os.path.dirname(__file__) + "/models")
 
-# TO BE CLEANED. CompressibilityFeature seems to be less usefule
+
 import tempfile
 
 class CompressibilityFeature(Feature):
     def __init__(self):
         self._values = []
         self._writer = None
+        self._writer_ref = None
+
+    def _create_video_stream(self,):
+        tf = tempfile.NamedTemporaryFile()
+        os.makedirs("./compressibility", exist_ok=True)
+        _video_filename = "./compressibility/" + os.path.basename(tf.name) + ".mp4"
+        _writer = skvideo.io.FFmpegWriter(
+            _video_filename,
+            inputdict={
+                "-r": "60",
+            },
+            outputdict={
+                "-r": "60",
+                "-c:v": "libx264",
+                "-preset": "medium",
+                "-crf": "24"
+            }
+        )
+        return _video_filename, _writer
+
+    def calc_ref_dis(self, dframe, rframe):
+        if self._writer is None:
+            self._video_filename, self._writer = self._create_video_stream()
+        if self._writer_ref is None:
+            self._video_filename_ref, self._writer_ref = self._create_video_stream()
+        self._writer.writeFrame(dframe)
+        self._writer_ref.writeFrame(rframe)
+        return 0
 
     def calc(self, frame, debug=False):
         if self._writer is None:
-            tf = tempfile.NamedTemporaryFile()
-            os.makedirs("./compressibility", exist_ok=True)
-            self._video_filename = "./compressibility/" + os.path.basename(tf.name) + ".mp4"
-            self._writer = skvideo.io.FFmpegWriter(
-                self._video_filename,
-                inputdict={
-                    "-r": "60",
-                },
-                outputdict={
-                    "-r": "60",
-                    "-c:v": "libx264",
-                    "-preset": "medium",
-                    "-crf": "24"
-                }
-            )
+            self._video_filename, self._writer = self._create_video_stream()
         self._writer.writeFrame(frame)
         #filesize = os.stat(self._video_filename).st_size  / 1024 / 1024
         #self._values.append(filesize)
@@ -56,6 +70,19 @@ class CompressibilityFeature(Feature):
             self._writer.close()
             filesize = os.stat(self._video_filename).st_size  / 1024 / 1024
             self._values.append(filesize)
+
+        if self._writer_ref is not None:
+            self._writer_ref.close()
+            filesize = os.stat(self._video_filename).st_size  / 1024 / 1024
+            filesize_ref = os.stat(self._video_filename_ref).st_size  / 1024 / 1024
+
+            self._values = [{
+                "diff": filesize_ref - filesize,
+                "dis": filesize,
+                "ref": filesize_ref
+                }
+            ]
+
         return super().store(folder, video, name)
 
     def get_values(self):
@@ -67,6 +94,7 @@ class CompressibilityFeature(Feature):
     def __del__(self):
         try:
             self._writer.close()
+            self._writer_ref.close()
         except:
             return
 
@@ -220,7 +248,13 @@ def __store_and_pool_features(video, features, meta, features_temp_folder):
         values = features[f].get_values()
         # TODO: this handling should be done by advanced_pooling...
         if len(values) == 1:
-            pooled_features = dict({f: values[0]}, **pooled_features)
+            if type(values[0]) == dict:
+                flattened = {
+                    f + "_" + x: values[0][x] for x in values[0]
+                }
+                pooled_features = dict(flattened, **pooled_features)
+            else:
+                pooled_features = dict({f: values[0]}, **pooled_features)
         else:
             pooled_features = dict(advanced_pooling(values, name=f), **pooled_features)
         per_frame_features = dict({f:values}, **per_frame_features)
@@ -324,9 +358,9 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
                 lInfo(f"handle frame {i} of {dis_video}: {f} -> {x}")
             i += 1
 
-        # TODO: remove temp files
-        #shutil.rmtree(dis_crop_folder)
-        #shutil.rmtree(ref_crop_folder)
+        # remove temp files
+        shutil.rmtree(dis_crop_folder)
+        shutil.rmtree(ref_crop_folder)
         # os.remove(dis_video_avpvs_crop)
         # os.remove(ref_video_avpvs_crop)
 
