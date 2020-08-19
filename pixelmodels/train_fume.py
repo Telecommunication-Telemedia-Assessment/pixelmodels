@@ -45,7 +45,7 @@ def main(_=[]):
 
     train_rf_models(
         features,
-        num_trees=60,
+        num_trees=240,
         threshold="0.0001*mean",
         modelfolder=a["model"]
     )
