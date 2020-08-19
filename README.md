@@ -9,7 +9,7 @@ Moreover, all tools required to build new models are included in this repository
 
 
 ## Requirements
-The models and software is only tested on linux systems (e.g. Ubuntu 19.04)
+The models and software is only tested on linux systems (e.g. Ubuntu 19.04, 20.04)
 
 The following software is required:
 
