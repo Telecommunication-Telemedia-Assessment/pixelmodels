@@ -20,7 +20,7 @@ from quat.visual.image import *
 
 
 MODEL_BASE_PATH = os.path.abspath(os.path.dirname(__file__) + "/models")
-
+CENTER_CROP = 240  # default is 360
 
 import tempfile
 
@@ -293,7 +293,8 @@ def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./
         # assumes UHD-1/4K 60 fps video, yuv422p10le
         video_avpvs_crop = convert_to_avpvs_and_crop(
             video,
-            f"{temp_folder}/crop/"
+            f"{temp_folder}/crop/",
+            ccheight=CENTER_CROP
         )
 
         for frame in iterate_by_frame(video_avpvs_crop, convert=False):
@@ -342,14 +343,16 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
             width=width,
             height=height,
             framerate=framerate,
-            pix_fmt=pix_fmt
+            pix_fmt=pix_fmt,
+            ccheight=CENTER_CROP
         )
         ref_video_avpvs_crop = convert_to_avpvs_and_crop(
             ref_video, ref_crop_folder,
             width=width,
             height=height,
             framerate=framerate,
-            pix_fmt=pix_fmt
+            pix_fmt=pix_fmt,
+            ccheight=CENTER_CROP
         )
 
         for d_frame, r_frame in iterate_by_frame_two_videos(dis_video_avpvs_crop, ref_video_avpvs_crop, convert=False):
