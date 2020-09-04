@@ -20,7 +20,7 @@ from quat.visual.image import *
 
 
 MODEL_BASE_PATH = os.path.abspath(os.path.dirname(__file__) + "/models")
-CENTER_CROP = 240  # default is 360
+CENTER_CROP = 360  # default is 360
 
 import tempfile
 
