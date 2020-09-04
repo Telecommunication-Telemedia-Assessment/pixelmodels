@@ -55,10 +55,11 @@ def nofu_features():
         "uhdhdsim",
         "blockiness",
         "noise",
+        "brisque",
+        #"ceiq", # no improvement
+        #"compressibility", # no improvement
+        # "niqe", # brisque is enough
         # not sure about the following features
-        #"niqe",
-        #"ceiq",
-        #"brisque",
         #"strred"
     }
 

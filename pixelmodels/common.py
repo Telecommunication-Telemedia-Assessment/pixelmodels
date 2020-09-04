@@ -25,6 +25,8 @@ MODEL_BASE_PATH = os.path.abspath(os.path.dirname(__file__) + "/models")
 import tempfile
 
 class CompressibilityFeature(Feature):
+    # TODO: move to quat
+    # FIX: local folder usage (here a specified temporary folder would be the better approach)
     def __init__(self):
         self._values = []
         self._writer = None
@@ -55,23 +57,22 @@ class CompressibilityFeature(Feature):
             self._video_filename_ref, self._writer_ref = self._create_video_stream()
         self._writer.writeFrame(dframe)
         self._writer_ref.writeFrame(rframe)
-        return 0
+        return 0 # here only fake values are returned
 
     def calc(self, frame, debug=False):
         if self._writer is None:
             self._video_filename, self._writer = self._create_video_stream()
         self._writer.writeFrame(frame)
-        #filesize = os.stat(self._video_filename).st_size  / 1024 / 1024
-        #self._values.append(filesize)
-        return 0 #filesize  # here only fake values are returned
+        return 0 # here only fake values are returned
 
     def store(self, folder, video, name=""):
         if self._writer is not None:
             self._writer.close()
             filesize = os.stat(self._video_filename).st_size  / 1024 / 1024
-            self._values.append(filesize)
+            self._values = [filesize]
 
         if self._writer_ref is not None:
+            # this is the full-ref case
             self._writer_ref.close()
             filesize = os.stat(self._video_filename).st_size  / 1024 / 1024
             filesize_ref = os.stat(self._video_filename_ref).st_size  / 1024 / 1024
@@ -86,13 +87,13 @@ class CompressibilityFeature(Feature):
         return super().store(folder, video, name)
 
     def get_values(self):
-        if len(self._values) == 0:
-            print("this should not happen, please call store before")
-            assert(False)
+        # FIX: this behaviour is not how it should be
+        msg_assert(len(self._values) > 0, f"this should not happen, please call store before")
         return self._values
 
     def __del__(self):
         try:
+            # TODO: delete temp files
             self._writer.close()
             self._writer_ref.close()
         except:
@@ -255,7 +256,8 @@ def __store_and_pool_features(video, features, meta, features_temp_folder):
                 pooled_features = dict(flattened, **pooled_features)
             else:
                 pooled_features = dict({f: values[0]}, **pooled_features)
-        else:
+        else: # stats=True, minimal=False
+            #pooled_features = dict(advanced_pooling(values, name=f, stats=False, minimal=True), **pooled_features)
             pooled_features = dict(advanced_pooling(values, name=f), **pooled_features)
         per_frame_features = dict({f:values}, **per_frame_features)
 

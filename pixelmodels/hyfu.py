@@ -55,10 +55,10 @@ def hyfu_features():
         "uhdhdsim",
         "blockiness",
         "noise",
+        #"brisque", --> no improvements
         # not sure about the following features
         #"niqe",
         #"ceiq",
-        #"brisque",
         #"strred"
     }
 

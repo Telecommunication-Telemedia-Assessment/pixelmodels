@@ -60,6 +60,7 @@ def fume_features():
         "psnr",
         "vifp",
         "fps",
+        #"compressibility", --> no improvements
     }
 
 
