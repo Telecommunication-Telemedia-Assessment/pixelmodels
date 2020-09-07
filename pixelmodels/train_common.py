@@ -186,7 +186,8 @@ def train_rf_models(features,
         save_model=True,
         target_cols=["mos", "rating_dist", "mos_class"],
         exclude_cols=["video", "src_video"],
-        modelfolder="models"):
+        modelfolder="models",
+        train_repetitions=1):
     """
     train several random forest models (for each traget column one model,
     depending on the given input values) to predict video quality
@@ -250,65 +251,65 @@ def train_rf_models(features,
     # df = new_df
 
     X = df[sorted(feature_cols)]
+    for r in range(train_repetitions):
+        for model in models_to_train:
+            Y = df[model]  # target column is the model name
 
-    for model in models_to_train:
-        Y = df[model]  # target column is the model name
+            if "_class" in model:
+                lInfo(f"train {model} as classification")
+                result = train_rf_class(X, Y, num_trees, threshold)
+                save_serialized(result["randomforest"], models["_class"])
+                cval = result["crossval"]
+                if clipping:
+                    cval["predicted"] = cval["predicted"].clip(1, 5)
+                metrics = eval_plots_class(cval["truth"], cval["predicted"], title=model, folder=modelfolder + "/_class/")
+                cval.to_csv(modelfolder + "/crossval_class.csv", index=False)
+                params["class_performance"] = params.get(class_performance, []) + [metrics]
+                continue
+            if "_dist" in model:
+                lInfo(f"train {model} as multi instance regression")
+                Y = convert_dist(Y.values)
+                Y = Y[sorted(Y.columns)]
+                result = train_rf_multi_regression(X, Y, num_trees, threshold)
+                save_serialized(result["randomforest"], models["_dist"])
+                cval = result["crossval"]
 
-        if "_class" in model:
-            lInfo(f"train {model} as classification")
-            result = train_rf_class(X, Y, num_trees, threshold)
-            save_serialized(result["randomforest"], models["_class"])
+                # perform per pair (predicted_N, truth_N) eval plots
+                for c in cval.columns:
+                    if "predicted" in c:
+                        continue
+                    truth_col = c
+                    predicted_col = truth_col.replace("truth", "predicted")
+                    part = truth_col.replace("truth_", "")
+                    metrics = eval_plots_regression(
+                        cval[truth_col],
+                        cval[predicted_col],
+                        title=model + f"_{part}",
+                        folder=modelfolder + "/_rating_dist/",
+                        plotname=f"rf_mi_@{num_trees}_dist_{part}"
+                    )
+                    params["regression_performance_dist_" + part] = params.get("regression_performance_dist_" + part, []) + [metrics]
+                cval.to_csv(modelfolder + "/crossval_rating_dist.csv", index=False)
+                continue
+            # default case: regression
+            lInfo(f"train {model} as regression")
+
+            result = train_rf_regression(X, Y, num_trees, threshold)
+            save_serialized(result["randomforest"], models["regression"])
             cval = result["crossval"]
             if clipping:
                 cval["predicted"] = cval["predicted"].clip(1, 5)
-            metrics = eval_plots_class(cval["truth"], cval["predicted"], title=model, folder=modelfolder + "/_class/")
-            cval.to_csv(modelfolder + "/crossval_class.csv", index=False)
-            params["class_performance"] = metrics
-            continue
-        if "_dist" in model:
-            lInfo(f"train {model} as multi instance regression")
-            Y = convert_dist(Y.values)
-            Y = Y[sorted(Y.columns)]
-            result = train_rf_multi_regression(X, Y, num_trees, threshold)
-            save_serialized(result["randomforest"], models["_dist"])
-            cval = result["crossval"]
-
-            # perform per pair (predicted_N, truth_N) eval plots
-            for c in cval.columns:
-                if "predicted" in c:
-                    continue
-                truth_col = c
-                predicted_col = truth_col.replace("truth", "predicted")
-                part = truth_col.replace("truth_", "")
-                metrics = eval_plots_regression(
-                    cval[truth_col],
-                    cval[predicted_col],
-                    title=model + f"_{part}",
-                    folder=modelfolder + "/_rating_dist/",
-                    plotname=f"rf_mi_@{num_trees}_dist_{part}"
-                )
-                params["regression_performance_dist_" + part] = metrics
-            cval.to_csv(modelfolder + "/crossval_rating_dist.csv", index=False)
-            continue
-        # default case: regression
-        lInfo(f"train {model} as regression")
-
-        result = train_rf_regression(X, Y, num_trees, threshold)
-        save_serialized(result["randomforest"], models["regression"])
-        cval = result["crossval"]
-        if clipping:
-            cval["predicted"] = cval["predicted"].clip(1, 5)
-        metrics = eval_plots_regression(
-            cval["truth"],
-            cval["predicted"],
-            title=model,
-            folder=modelfolder + "/_reggression/",
-            plotname=f"rf_@{num_trees}"
-        )
-        cval.to_csv(modelfolder + "/crossval_regression.csv", index=False)
-        metrics["number_features"] = result["number_features"]
-        metrics["used_features"] = result["used_features"]
-        params["regression_performance"] = metrics
+            metrics = eval_plots_regression(
+                cval["truth"],
+                cval["predicted"],
+                title=model,
+                folder=modelfolder + "/_reggression/",
+                plotname=f"rf_@{num_trees}"
+            )
+            cval.to_csv(modelfolder + "/crossval_regression.csv", index=False)
+            metrics["number_features"] = result["number_features"]
+            metrics["used_features"] = result["used_features"]
+            params["regression_performance"] = params.get("regression_performance", []) +[metrics]
 
     # store general model info
     jdump_file(modelfolder + "/info.json", params)

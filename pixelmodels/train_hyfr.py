@@ -48,7 +48,8 @@ def main(_=[]):
         features,
         num_trees=240,
         threshold="0.0001*mean",
-        modelfolder=a["model"]
+        modelfolder=a["model"],
+        train_repetitions=a["train_repetitions"]
     )
 
 
