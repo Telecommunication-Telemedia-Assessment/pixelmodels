@@ -185,7 +185,7 @@ def train_rf_models(features,
         graphs=True,
         save_model=True,
         target_cols=["mos", "rating_dist", "mos_class"],
-        exclude_cols=["video", "src_video"],
+        exclude_cols=["video", "src_video"] + ["mos", "rating_dist", "mos_class"],
         modelfolder="models",
         train_repetitions=1):
     """
