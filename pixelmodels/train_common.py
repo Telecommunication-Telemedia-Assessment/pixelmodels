@@ -178,6 +178,41 @@ def convert_dist(y_values):
     return pd.DataFrame(values)
 
 
+def histogram_based_dataset_balancing(df):
+    """
+    use rounded mos values to balance dataset,
+    used for testing of different dataset variations during model development
+    """
+    lInfo("balance dataset")
+    def plot_hist(x):
+        hist = {}
+        for i in x:
+            hist[i] = hist.get(i, 0) + 1
+        print({x: hist[x] for x in sorted(hist.keys())})
+
+    # balance dataset a bit:
+    max_grp_size = 0
+    min_grp_size = len(df)
+
+    df["round_target"] = df["mos"].round(0)
+    lInfo("before")
+    plot_hist(df["round_target"])
+    for i, g in df.groupby(by="round_target"):
+        max_grp_size = max(len(g), max_grp_size)
+        min_grp_size = min(len(g), min_grp_size)
+    min_size = (max_grp_size + min_grp_size) // 2
+
+    new_df = pd.DataFrame()
+    for i, g in df.groupby(by="round_target"):
+        new_df = new_df.append(g, ignore_index=True)
+        if len(g) < min_size:
+            for _ in range(max(min_size // len(g), 1)):
+                new_df = new_df.append(g, ignore_index=True)
+    lInfo("after")
+    plot_hist(new_df["round_target"])
+    return new_df
+
+
 def train_rf_models(features,
         clipping=True,
         num_trees=60,
@@ -221,34 +256,7 @@ def train_rf_models(features,
 
     feature_cols = df.columns.difference(target_cols + exclude_cols)
 
-    # lInfo("balance dataset")
-    # def plot_hist(x):
-    #     hist = {}
-    #     for i in x:
-    #         hist[i] = hist.get(i, 0) + 1
-    #     print({x: hist[x] for x in sorted(hist.keys())})
-
-    # # balance dataset a bit:
-    # max_grp_size = 0
-    # min_grp_size = len(df)
-
-    # df["round_target"] = df["mos"].round(0)
-    # lInfo("before")
-    # plot_hist(df["round_target"])
-    # for i, g in df.groupby(by="round_target"):
-    #     max_grp_size = max(len(g), max_grp_size)
-    #     min_grp_size = min(len(g), min_grp_size)
-    # min_size = (max_grp_size + min_grp_size) // 2
-
-    # new_df = pd.DataFrame()
-    # for i, g in df.groupby(by="round_target"):
-    #     new_df = new_df.append(g, ignore_index=True)
-    #     if len(g) < min_size:
-    #         for _ in range(max(min_size // len(g), 1)):
-    #             new_df = new_df.append(g, ignore_index=True)
-    # lInfo("after")
-    # plot_hist(new_df["round_target"])
-    # df = new_df
+    # df = histogram_based_dataset_balancing(df)
 
     X = df[sorted(feature_cols)]
     for r in range(train_repetitions):
