@@ -252,6 +252,7 @@ def train_rf_models(features,
 
     X = df[sorted(feature_cols)]
     for r in range(train_repetitions):
+        lInfo(f"run train repetition #{r}")
         for model in models_to_train:
             Y = df[model]  # target column is the model name
 
