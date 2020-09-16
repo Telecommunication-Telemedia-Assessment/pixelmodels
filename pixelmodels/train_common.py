@@ -95,7 +95,7 @@ def calc_and_store_features(video_and_rating, feature_folder, temp_folder, featu
 
 def read_database(database, full_ref=False):
     """
-    reads a databases
+    reads a database
 
     in case full_ref: then also src videos are loaded
 
@@ -154,6 +154,7 @@ def load_features(feature_folder):
     """
     loads feature values from a folder,
     here it is assumed that pooled features are plain json files
+    Important: there is no filtering, all json files of this folder will be used
     """
     assert_dir(feature_folder, True)
     features = []
