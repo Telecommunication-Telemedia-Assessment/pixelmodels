@@ -89,4 +89,4 @@ If you use this software in your research, please include a link to the reposito
 ```
 
 ## License
-GNU General Public License v3. See LICENSE.md file in this repository.
+GNU General Public License v3. See [LICENSE.md](./LICENSE.md) file in this repository.
