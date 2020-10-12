@@ -296,9 +296,7 @@ def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./
         video_avpvs_crop = convert_to_avpvs_and_crop(
             video,
             f"{temp_folder}/crop/",
-            ccheight=CENTER_CROP,
-            width=3840,
-            height=2160
+            ccheight=CENTER_CROP
         )
 
         for frame in iterate_by_frame(video_avpvs_crop, convert=False):
@@ -348,7 +346,7 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
             height=height,
             framerate=framerate,
             pix_fmt=pix_fmt,
-            ccheight=min(height, CENTER_CROP)
+            ccheight=CENTER_CROP
         )
         ref_video_avpvs_crop = convert_to_avpvs_and_crop(
             ref_video, ref_crop_folder,
@@ -356,7 +354,7 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
             height=height,
             framerate=framerate,
             pix_fmt=pix_fmt,
-            ccheight=min(height, CENTER_CROP)
+            ccheight=CENTER_CROP
         )
 
         for d_frame, r_frame in iterate_by_frame_two_videos(dis_video_avpvs_crop, ref_video_avpvs_crop, convert=False):
