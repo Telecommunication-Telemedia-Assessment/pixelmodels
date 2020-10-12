@@ -4,7 +4,7 @@ The following repository consists of in total four pixel based video quality pre
 
 All models are able to be used for video quality prediction of short video sequences (up to 10 seconds) in case of UHD-1/4K resolution with 60fps.
 
-This repository also ships pre-trained models (see pixelmodels/models) that are trained on dedicated performed subjective video quality tests.
+This repository also ships pre-trained models (see `pixelmodels/models`) that are trained on dedicated performed subjective video quality tests.
 Moreover, all tools required to build new models are included in this repository, thus beside each models prediction code, e.g. `nofu`, also a `train_{modelname}` script is provided.
 
 
@@ -81,12 +81,12 @@ If you use this software in your research, please include a link to the reposito
 
 ```
 @inproceedings{goering2020pixel,
-  title={Pixel based Video Quality Models for 4K},
+  title={Pixel based Video Quality Models for UHD-1/4K},
   author={Steve G{\"{o}}ring and Rakesh Rao Ramachandra Rao and Bernhard Feiten and Alexander Raake},
   year={2020},
-  organization={IEEE},
+  organization={IEEE Access},
 }
 ```
 
 ## License
-GNU General Public License v3. See LICENSE.md file in this repository.
+GNU General Public License v3. See [LICENSE.md](./LICENSE.md) file in this repository.
