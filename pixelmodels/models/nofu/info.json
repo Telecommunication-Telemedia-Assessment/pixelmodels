@@ -1,0 +1,101 @@
+{
+    "class_performance": [
+        {
+            "accuracy": 0.5837696335078534,
+            "f1": 0.5677275113987009,
+            "mcc": 0.374960381469316,
+            "precision": 0.5817934773958917,
+            "recall": 0.5837696335078534,
+            "rmse": 0.8234139124426963
+        }
+    ],
+    "clipping": "True",
+    "date": "2020-10-27 14:14:00.234155",
+    "models_to_train": [
+        "mos",
+        "mos_class",
+        "rating_dist"
+    ],
+    "num_trees": 120,
+    "regression_performance": [
+        {
+            "cohen_d": -0.02111159364276,
+            "kendall": 0.5356661142812664,
+            "mean_absolute_error": 0.507009420101665,
+            "median_absolute_error": 0.4021666666666659,
+            "number_features": 64,
+            "pearson": 0.716996547662145,
+            "r2": 0.5023287687519655,
+            "rmse": 0.657172222989291,
+            "spearman": 0.7272312980769133,
+            "used_features": 64.0
+        }
+    ],
+    "regression_performance_dist_1": [
+        {
+            "cohen_d": 0.018095072599484164,
+            "kendall": 0.3793404110547436,
+            "mean_absolute_error": 0.06402866159189098,
+            "median_absolute_error": 0.030453664799253044,
+            "pearson": 0.568523440850937,
+            "r2": 0.3152804225462055,
+            "rmse": 0.13234533097486126,
+            "spearman": 0.4837686942902709
+        }
+    ],
+    "regression_performance_dist_2": [
+        {
+            "cohen_d": 0.02587953641482034,
+            "kendall": 0.4467593826689044,
+            "mean_absolute_error": 0.11442230560781612,
+            "median_absolute_error": 0.08988363678804873,
+            "pearson": 0.5693148874986351,
+            "r2": 0.3223760842599863,
+            "rmse": 0.15335116031883342,
+            "spearman": 0.6130117418732196
+        }
+    ],
+    "regression_performance_dist_3": [
+        {
+            "cohen_d": 0.00850961252625069,
+            "kendall": 0.420351498806885,
+            "mean_absolute_error": 0.131109074930874,
+            "median_absolute_error": 0.10994013577653283,
+            "pearson": 0.5856283184736667,
+            "r2": 0.34285075818335886,
+            "rmse": 0.1627311143035655,
+            "spearman": 0.5908540200693884
+        }
+    ],
+    "regression_performance_dist_4": [
+        {
+            "cohen_d": -0.023011622433859732,
+            "kendall": 0.37299019830721747,
+            "mean_absolute_error": 0.1520448949540549,
+            "median_absolute_error": 0.13498827030812321,
+            "pearson": 0.56552426769386,
+            "r2": 0.319371953771607,
+            "rmse": 0.18546523631494685,
+            "spearman": 0.5397480705339684
+        }
+    ],
+    "regression_performance_dist_5": [
+        {
+            "cohen_d": -0.01762313495760794,
+            "kendall": 0.5254729155718417,
+            "mean_absolute_error": 0.11692353793975414,
+            "median_absolute_error": 0.08752710667600372,
+            "pearson": 0.7229789828135,
+            "r2": 0.5186757080761816,
+            "rmse": 0.15573338410893037,
+            "spearman": 0.6991563327644299
+        }
+    ],
+    "repo_version": "master@a637df9d0f89d978b17a1d22b48cd451fef4de24",
+    "targets": [
+        "mos",
+        "rating_dist",
+        "mos_class"
+    ],
+    "threshold": "0.0001*mean"
+}
