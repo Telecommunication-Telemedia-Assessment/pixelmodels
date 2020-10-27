@@ -272,7 +272,7 @@ def train_rf_models(features,
                     cval["predicted"] = cval["predicted"].clip(1, 5)
                 metrics = eval_plots_class(cval["truth"], cval["predicted"], title=model, folder=modelfolder + "/_class/")
                 cval.to_csv(modelfolder + "/crossval_class.csv", index=False)
-                params["class_performance"] = params.get(class_performance, []) + [metrics]
+                params["class_performance"] = params.get("class_performance", []) + [metrics]
                 continue
             if "_dist" in model:
                 lInfo(f"train {model} as multi instance regression")
