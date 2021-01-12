@@ -83,7 +83,7 @@ If you use this software in your research, please include a link to the reposito
 @inproceedings{goering2020pixel,
   title={Modular Framework and Instances of Pixel-based Video Quality Models for UHD-1/4K},
   author={Steve G{\"{o}}ring and Rakesh Rao Ramachandra Rao and Bernhard Feiten and Alexander Raake},
-  year={2020},
+  year={2021},
   organization={IEEE Access},
 }
 ```
