@@ -31,5 +31,5 @@ git = "https://github.com/scikit-video/scikit-video.git"
 branch = "master"
 
 [tool.poetry.dependencies.quat]
-git = "git@github.com:Telecommunication-Telemedia-Assessment/quat.git"
-branch = "master"
+git = "https://github.com/Telecommunication-Telemedia-Assessment/quat.git"
+tag = "v0.1.2"
