@@ -85,11 +85,11 @@ If you use this software in your research, please include a link to the reposito
   author={Steve G\"oring and Rakesh {Rao Ramachandra Rao} and Bernhard Feiten and Alexander Raake},
   journal={IEEE Access},
   volume={9},
-  pages={},
+  pages={31842-31864},
   year={2021},
   publisher={IEEE},
   doi={10.1109/ACCESS.2021.3059932},
-  url={}
+  url={https://ieeexplore.ieee.org/document/9355144}
 }
 ```
 
