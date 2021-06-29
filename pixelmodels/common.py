@@ -283,6 +283,8 @@ def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./
     if meta is true, also include mode0 features
     """
     msg_assert(featurenames is not None, "featurenames are required to be defined", f"featurenames ok")
+    msg_assert(os.path.isfile(video), f"{video} does not exists", f"{video} exists")
+
     lInfo(f"handle : {video} for {modelname}")
 
     all_feat = all_no_ref_features()
@@ -319,6 +321,9 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
     if meta is true, also include mode0 features
     """
     msg_assert(featurenames is not None, "featurenames are required to be defined", f"featurenames ok")
+    msg_assert(os.path.isfile(dis_video), f"{dis_video} does not exists", f"{dis_video} exists")
+    msg_assert(os.path.isfile(ref_video), f"{ref_video} does not exists", f"{ref_video} exists")
+
     lInfo(f"handle : {dis_video} for {modelname}")
 
     all_feat = all_features()
