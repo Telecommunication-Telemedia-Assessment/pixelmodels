@@ -32,4 +32,4 @@ branch = "master"
 
 [tool.poetry.dependencies.quat]
 git = "https://github.com/Telecommunication-Telemedia-Assessment/quat.git"
-tag = "v0.1.4"
+tag = "v0.1.5"
