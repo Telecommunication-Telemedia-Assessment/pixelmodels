@@ -27,6 +27,9 @@ import tempfile
 class CompressibilityFeature(Feature):
     # TODO: move to quat
     # FIX: local folder usage (here a specified temporary folder would be the better approach)
+    # this feature is inspired by the ITU-T P.1204.5 "Source complexity feature", which uses a CRF 32 encoding with vp9
+    # Important: this feature is not used in the models, because there was no improvement,
+    #   however, it still may be useful considering that the calculated is fast
     def __init__(self):
         self._values = []
         self._writer = None
