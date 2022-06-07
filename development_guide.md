@@ -1,11 +1,12 @@
 # Development Guide
 
+A detailed description of how the framework works internally and what the differences of the specific models are is described in the paper ["Modular Framework and Instances of Pixel-Based Video Quality Models for UHD-1/4K"](https://ieeexplore.ieee.org/document/9355144).
+To speed up calculation, the framework uses a center crop of the videos, this decision was based on the observations made in the paper ["cencro - Speedup of Video Quality Calculation using Center Cropping"](https://www.researchgate.net/publication/338200687_cencro_--_Speedup_of_Video_Quality_Calculation_using_Center_Cropping).
+
 
 ## Extension of used features for a specific model
 
-To extend the features for a specific model, you need to adjust:
-
-in the `pixelmodels/common.py` the following methods, depending on the feature type:
+To extend the features for a specific model, you need to adjust in the `pixelmodels/common.py` the following methods, depending on the feature type:
 
 ```python
 # for no reference features
@@ -13,8 +14,9 @@ def all_no_ref_features():
     ...
     return {
         "contrast": ImageFeature(calc_contrast_features),
+        ...
         "NEW_FEATURE": INSTANCE OF THE FEATURE
-        ....
+        ...
     }
 
 # and similar you could extend specific full-reference features in:
@@ -34,6 +36,7 @@ Afterwards, you can adjust for a specific model the used features by extending t
 def nofu_features():
     return {
         "contrast",
+        ...
         "NEW_FEATURE"
         ...
     }
