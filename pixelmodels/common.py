@@ -31,11 +31,14 @@ class CompressibilityFeature(Feature):
         self._values = []
         self._writer = None
         self._writer_ref = None
+        self._temp_files = []
 
-    def _create_video_stream(self,):
+    def _create_video_stream(self):
         tf = tempfile.NamedTemporaryFile()
         os.makedirs("./compressibility", exist_ok=True)
         _video_filename = "./compressibility/" + os.path.basename(tf.name) + ".mp4"
+        self._temp_files.append(_video_filename)
+
         _writer = skvideo.io.FFmpegWriter(
             _video_filename,
             inputdict={
@@ -93,7 +96,9 @@ class CompressibilityFeature(Feature):
 
     def __del__(self):
         try:
-            # TODO: delete temp files
+            # delete temp files, but not folder, because due to multiprocessing this folder may contain other parallel processed temporary files
+            for tmp_file in self._temp_files:
+                os.remove(tmp_file)
             self._writer.close()
             self._writer_ref.close()
         except:
@@ -367,6 +372,8 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
                 x = features[f].calc_dis_ref(d_frame, r_frame)
                 lInfo(f"handle frame {i} of {dis_video}: {f} -> {x}")
             i += 1
+            if i >= 5:
+                break
 
         # remove temp files
         shutil.rmtree(dis_crop_folder)
