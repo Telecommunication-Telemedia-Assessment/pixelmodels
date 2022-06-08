@@ -399,7 +399,7 @@ def predict_video_score(features, model_base_path, clipping=True):
     df = pd.DataFrame([features])
     columns = df.columns.difference(["video", "src_video", "mos", "rating_dist"])
     X = df[sorted(columns)]
-    X = X.replace([np.inf, -np.inf], np.nan).fillna(0).values
+    #X = X.replace([np.inf, -np.inf], np.nan).fillna(0).values
     lInfo(f"loaded features {len(df)}: shape: {X.shape}")
 
     models = {
