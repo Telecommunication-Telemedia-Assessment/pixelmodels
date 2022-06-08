@@ -66,7 +66,7 @@ american_football_harmonic_200kbps_360p_59.94fps_h264.mp4,1,...,1,1.0,0.0
 ```
 The `userY` columns are the ratings of the individual users of the subjective test, these columns are optional, and if not existing will be skipped during training.
 
-In case of a full references model, the corresponding source video is automaticall deduced by the filename (longest matching prefix, thus in the example it will be `american_football_harmonic.mkv` selected as source video), the lookup folder for source videos is for example `data/4k_databases_full/src_videos`.
+In case of a full references model, the corresponding source video is automatically deduced by the filename (longest matching prefix, thus in the example it will be `american_football_harmonic.mkv` selected as source video), the lookup folder for source videos is for the given example `data/4k_databases_full/src_videos`.
 In case a different structure or format is used, then `pixelmodels.train_common.read_database` must be adjusted. 
 
 
