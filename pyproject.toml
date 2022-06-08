@@ -12,6 +12,7 @@ license = "GPL 3"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
+opencv-python = "4.5.5.64"  # the newly released version 4.6.0.66 makes problems during installation
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -26,11 +27,11 @@ train_fume = "pixelmodels.train_fume:main"
 hyfr = "pixelmodels.hyfr:main"
 train_hyfr = "pixelmodels.train_hyfr:main"
 
-[tool.poetry.dependencies.scikit-video]
-git = "https://github.com/scikit-video/scikit-video.git"
-branch = "master"
+#[tool.poetry.dependencies.scikit-video]
+#git = "https://github.com/scikit-video/scikit-video.git"
+#branch = "master"
 
 [tool.poetry.dependencies.quat]
 git = "https://github.com/Telecommunication-Telemedia-Assessment/quat.git"
 #branch = "master"
-tag = "v0.1.7"
+tag = "v0.1.8"
