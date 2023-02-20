@@ -90,7 +90,7 @@ For more details about the features and pipeline, checkout the paper `goering202
 
 If you use this software in your research, please include a link to the repository and reference the following paper.
 
-```
+```bibtex
 @inproceedings{goering2021pixel,
   title={Modular Framework and Instances of Pixel-based Video Quality Models for UHD-1/4K},
   author={Steve G\"oring and Rakesh {Rao Ramachandra Rao} and Bernhard Feiten and Alexander Raake},
