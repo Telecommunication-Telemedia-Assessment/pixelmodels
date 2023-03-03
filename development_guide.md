@@ -44,5 +44,5 @@ def nofu_features():
 
 The definition in this file is only based on the name, have in mind that these names must be uniqe, and they will be used for caching as filenames (so please do not use any fancy characters, to be sure just use ASCII chars).
 
-**HINT** an extension of the used features always requires a full re-training of the models (if you have performed a training before only the new features are calculated)
+**HINT:** an extension of the used features always requires a full re-training of the models (if you have performed a training before only the new features are calculated)
 
