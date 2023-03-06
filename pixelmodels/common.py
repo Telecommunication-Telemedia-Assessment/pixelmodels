@@ -22,6 +22,12 @@ from quat.visual.image import *
 MODEL_BASE_PATH = os.path.abspath(os.path.dirname(__file__) + "/models")
 CENTER_CROP = 360  # default is 360
 
+# ugly hack to bypass numpy issues with old scikit-video version, which hopefully will be updated in 2023, see https://github.com/scikit-video/scikit-video/pull/169
+np.int = int
+np.float = float
+np.bool = bool
+
+
 import tempfile
 
 class CompressibilityFeature(Feature):
@@ -309,7 +315,7 @@ def extract_features_no_ref(video, temp_folder="./tmp", features_temp_folder="./
             ccheight=CENTER_CROP
         )
 
-        for frame in iterate_by_frame(video_avpvs_crop, convert=False):
+        for frame in iterate_by_frame(video_avpvs_crop, convert=False, openCV=True):
             for f in features_to_calculate:
                 x = features[f].calc(frame)
                 lInfo(f"handle frame {i} of {video}: {f} -> {x}")
@@ -370,7 +376,7 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
             ccheight=CENTER_CROP
         )
 
-        for d_frame, r_frame in iterate_by_frame_two_videos(dis_video_avpvs_crop, ref_video_avpvs_crop, convert=False):
+        for d_frame, r_frame in iterate_by_frame_two_videos(dis_video_avpvs_crop, ref_video_avpvs_crop, convert=False, openCV=True):
             for f in features_to_calculate:
                 x = features[f].calc_dis_ref(d_frame, r_frame)
                 lInfo(f"handle frame {i} of {dis_video}: {f} -> {x}")

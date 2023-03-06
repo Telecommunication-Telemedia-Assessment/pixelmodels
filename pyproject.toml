@@ -12,7 +12,7 @@ license = "GPL 3"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
-opencv-python = "4.5.5.64"
+opencv-python = "4.5.5.*"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -29,4 +29,4 @@ train_hyfr = "pixelmodels.train_hyfr:main"
 
 [tool.poetry.dependencies.quat]
 git = "https://github.com/Telecommunication-Telemedia-Assessment/quat.git"
-tag = "v0.1.9"
+tag = "v0.1.13"
