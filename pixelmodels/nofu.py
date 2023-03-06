@@ -64,7 +64,6 @@ def nofu_features():
     }
 
 
-
 def nofu_predict_video_score(video, temp_folder="./tmp", features_temp_folder="./tmp/features", model_path=NOFU_MODEL_PATH, clipping=True):
     features, full_report = extract_features_no_ref(
         video,
