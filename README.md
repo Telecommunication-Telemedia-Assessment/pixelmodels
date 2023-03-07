@@ -6,7 +6,7 @@ All models are able to be used for video quality prediction of short video seque
 
 This repository also ships pre-trained models (see `pixelmodels/models`) that are trained on dedicated performed subjective video quality tests.
 Moreover, all tools required to build new models are included in this repository, thus beside each models prediction code, e.g. `nofu`, also a `train_{modelname}` script is provided.
-
+The `pixelmodels` use [`quat`](https://github.com/Telecommunication-Telemedia-Assessment/quat) for features and processing.
 
 ## Requirements
 The models and software is only tested on linux systems (e.g. Ubuntu 19.04, 20.04, 22.04)
