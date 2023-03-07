@@ -381,8 +381,6 @@ def extract_features_full_ref(dis_video, ref_video, temp_folder="./tmp", feature
                 x = features[f].calc_dis_ref(d_frame, r_frame)
                 lInfo(f"handle frame {i} of {dis_video}: {f} -> {x}")
             i += 1
-            if i >= 5:
-                break
 
         # remove temp files
         shutil.rmtree(dis_crop_folder)
