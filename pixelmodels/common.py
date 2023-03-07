@@ -22,11 +22,6 @@ from quat.visual.image import *
 MODEL_BASE_PATH = os.path.abspath(os.path.dirname(__file__) + "/models")
 CENTER_CROP = 360  # default is 360
 
-# ugly hack to bypass numpy issues with old scikit-video version, which hopefully will be updated in 2023, see https://github.com/scikit-video/scikit-video/pull/169
-np.int = int
-np.float = float
-np.bool = bool
-
 
 import tempfile
 
